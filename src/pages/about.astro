@@ -1,0 +1,123 @@
+---
+import Layout from '../components/layout/Layout.astro';
+---
+
+<Layout title="About">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8 tracking-tight">About this project</h1>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4">Why this exists</h2>
+      <p class="text-base-content/80 mb-4 leading-relaxed">
+        I started learning robotics as a side project and quickly hit a wall: I couldn't remember half
+        the linear algebra I learned in undergrad. Vectors, matrix transformations, eigenvalues — it was
+        all buried somewhere in the back of my brain, and textbooks weren't helping me reconnect it to
+        the robotics problems I was actually trying to solve.
+      </p>
+      <p class="text-base-content/80 leading-relaxed">
+        So I built this. It's an interactive learning platform that ties linear algebra concepts directly
+        to robotics applications, with visualizations you can play with and examples grounded in real
+        robot problems.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4">Vibe-coded with Claude Code</h2>
+      <p class="text-base-content/80 mb-4 leading-relaxed">
+        We live in an age where knowledge is a common commodity. AI lets anyone learn anything, anywhere,
+        anytime — ask unlimited questions, get instant explanations, explore at your own pace. I leaned
+        into that fully here.
+      </p>
+      <p class="text-base-content/80 leading-relaxed">
+        This entire project was "vibe coded" with Claude Code. I described what I wanted to learn, how I
+        wanted to learn it, and Claude helped me build the interactive platform around it. The result is
+        something that helped me relearn linear algebra in a way that actually stuck — and I hope it
+        helps you too.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4">What's inside</h2>
+      <p class="text-base-content/80 mb-6 leading-relaxed">
+        Each module builds on the previous one, going from basic vector operations to real robotics
+        applications like forward kinematics and path planning. Every lesson has interactive components
+        you can drag, tweak, and experiment with.
+      </p>
+      <div class="space-y-3">
+        <a href="/modules/01-foundations" class="flex items-center gap-3 p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all">
+          <span class="badge badge-primary badge-sm">1</span>
+          <span><strong>Foundations</strong> — Vectors, dot products, cross products</span>
+        </a>
+        <a href="/modules/02-matrices" class="flex items-center gap-3 p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all">
+          <span class="badge badge-primary badge-sm">2</span>
+          <span><strong>Matrices</strong> — Operations, multiplication, determinants</span>
+        </a>
+        <a href="/modules/03-transformations" class="flex items-center gap-3 p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all">
+          <span class="badge badge-primary badge-sm">3</span>
+          <span><strong>Transformations</strong> — 2D/3D transforms, homogeneous coordinates</span>
+        </a>
+        <a href="/modules/04-advanced" class="flex items-center gap-3 p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all">
+          <span class="badge badge-primary badge-sm">4</span>
+          <span><strong>Advanced</strong> — Eigenvalues, coordinate frames, rotation representations</span>
+        </a>
+        <a href="/modules/05-applications" class="flex items-center gap-3 p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all">
+          <span class="badge badge-primary badge-sm">5</span>
+          <span><strong>Applications</strong> — Forward kinematics, velocity kinematics, path planning</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4">Built with</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">Astro</div>
+          <div class="text-base-content/50 text-xs">Framework</div>
+        </div>
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">React</div>
+          <div class="text-base-content/50 text-xs">Interactive UI</div>
+        </div>
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">Tailwind + DaisyUI</div>
+          <div class="text-base-content/50 text-xs">Styling</div>
+        </div>
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">p5.js</div>
+          <div class="text-base-content/50 text-xs">2D visualizations</div>
+        </div>
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">Three.js</div>
+          <div class="text-base-content/50 text-xs">3D visualizations</div>
+        </div>
+        <div class="p-3 rounded-lg bg-base-200/50 text-center text-sm">
+          <div class="font-semibold">KaTeX</div>
+          <div class="text-base-content/50 text-xs">Math rendering</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-4">Source code</h2>
+      <p class="text-base-content/80 leading-relaxed">
+        This project is open source. Check out the code, open issues, or contribute on
+        <a href="https://github.com/duydvu/Linear-Algebra-for-Robotics" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">GitHub</a>.
+      </p>
+    </section>
+
+    <div class="card bg-gradient-to-r from-primary/[0.08] to-secondary/[0.05] border border-primary/15 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-2xl">Ready to start?</h2>
+        <p class="text-base-content/70">
+          Jump into Module 1 and start with the basics. No prior robotics experience needed — just
+          a willingness to play around with the interactive demos.
+        </p>
+        <div class="card-actions">
+          <a href="/modules/01-foundations" class="btn btn-primary shadow-md shadow-primary/30">
+            Start Learning
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

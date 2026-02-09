@@ -10,10 +10,12 @@ import mdx from '@astrojs/mdx';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
+const isGitHubPages = !!process.env.GITHUB_ACTIONS;
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://duydvu.github.io',
-  base: '/Linear-Algebra-for-Robotics',
+  site: isGitHubPages ? 'https://linear-algebra-for-robotics.kysuai.com' : undefined,
+  base: '/',
   output: 'static',
   vite: {
     plugins: [tailwindcss()]
