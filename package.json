@@ -6,9 +6,38 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "astro": "^5.17.1"
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/react": "^4.4.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/katex": "^0.16.8",
+    "@types/p5": "^1.7.7",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.182.0",
+    "astro": "^5.17.1",
+    "katex": "^0.16.28",
+    "p5": "^2.2.0",
+    "plotly.js-dist-min": "^3.3.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "tailwindcss": "^4.1.18",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "daisyui": "^5.5.18",
+    "jsdom": "^28.0.0",
+    "vitest": "^4.0.18",
+    "zod": "^3.25.76"
   }
 }

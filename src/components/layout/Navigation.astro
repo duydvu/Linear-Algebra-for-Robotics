@@ -1,0 +1,98 @@
+---
+const modules = [
+  { id: 1, name: 'Foundations', path: '/modules/01-foundations' },
+  { id: 2, name: 'Matrices', path: '/modules/02-matrices' },
+  { id: 3, name: 'Transformations', path: '/modules/03-transformations' },
+  { id: 4, name: 'Advanced', path: '/modules/04-advanced' },
+  { id: 5, name: 'Applications', path: '/modules/05-applications' }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<div class="navbar bg-base-100 border-b border-base-content/5 sticky top-0 z-50">
+  <div class="navbar-start">
+    <!-- Mobile dropdown -->
+    <div class="dropdown lg:hidden">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </div>
+      <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow-lg border border-base-content/10">
+        {modules.map((module) => (
+          <li>
+            <a
+              href={module.path}
+              class:list={[
+                currentPath.startsWith(module.path) && 'menu-active'
+              ]}
+            >
+              Module {module.id}: {module.name}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a
+            href="/resources"
+            class:list={[
+              currentPath.startsWith('/resources') && 'menu-active'
+            ]}
+          >
+            Resources
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Brand -->
+    <a href="/" class="btn btn-ghost text-xl font-bold tracking-tight">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+      Linear Algebra
+    </a>
+  </div>
+
+  <!-- Desktop Menu -->
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1 gap-1">
+      {modules.map((module) => (
+        <li>
+          <a
+            href={module.path}
+            class:list={[
+              currentPath.startsWith(module.path) && 'menu-active'
+            ]}
+          >
+            {module.name}
+          </a>
+        </li>
+      ))}
+      <li>
+        <a
+          href="/resources"
+          class:list={[
+            currentPath.startsWith('/resources') && 'menu-active'
+          ]}
+        >
+          Resources
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Theme Toggle -->
+  <div class="navbar-end">
+    <button id="theme-toggle" class="btn btn-ghost btn-circle" aria-label="Toggle theme">
+      <!-- Moon icon (visible in light mode) -->
+      <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      </svg>
+      <!-- Sun icon (visible in dark mode) -->
+      <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </button>
+  </div>
+</div>

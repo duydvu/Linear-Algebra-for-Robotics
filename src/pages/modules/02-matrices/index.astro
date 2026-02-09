@@ -1,0 +1,141 @@
+---
+import Layout from '../../../components/layout/Layout.astro';
+---
+
+<Layout
+  title="Module 2: Matrix Operations"
+  description="Learn matrix fundamentals, multiplication, determinants, and their applications in robotics"
+>
+  <div class="max-w-4xl">
+    <div class="mb-8">
+      <div class="text-sm breadcrumbs mb-4">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/modules">Modules</a></li>
+          <li>Module 2: Matrix Operations</li>
+        </ul>
+      </div>
+
+      <h1 class="text-4xl font-bold mb-4">Module 2: Matrix Operations</h1>
+      <p class="text-lg text-base-content/70">
+        Matrices are the foundation of linear transformations and robot kinematics.
+        This module covers matrix operations, multiplication, and introduces the critical
+        concept of singular configurations in robotics.
+      </p>
+    </div>
+
+    <div class="grid gap-6 mb-12">
+      <!-- Lesson 1 -->
+      <a href="/modules/02-matrices/01-fundamentals" class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+        <div class="card-body">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge badge-primary">Lesson 1</span>
+                <span class="badge badge-outline">25 min</span>
+              </div>
+              <h2 class="card-title text-2xl mb-2">Matrix Fundamentals</h2>
+              <p class="text-base-content/70 mb-4">
+                Understanding matrices, notation, and basic operations. Learn addition, subtraction,
+                scalar multiplication, transpose, and special matrices like identity and diagonal matrices.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="badge badge-sm">Addition & Subtraction</span>
+                <span class="badge badge-sm">Scalar Multiplication</span>
+                <span class="badge badge-sm">Transpose</span>
+                <span class="badge badge-sm">Identity Matrix</span>
+              </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary flex-shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- Lesson 2 -->
+      <a href="/modules/02-matrices/02-multiplication" class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+        <div class="card-body">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge badge-primary">Lesson 2</span>
+                <span class="badge badge-outline">30 min</span>
+              </div>
+              <h2 class="card-title text-2xl mb-2">Matrix Multiplication</h2>
+              <p class="text-base-content/70 mb-4">
+                Master the row-column rule and understand transformation composition. Essential for
+                robot kinematic chains where multiple joint transformations combine.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="badge badge-sm">Row-Column Rule</span>
+                <span class="badge badge-sm">Non-Commutative</span>
+                <span class="badge badge-sm">Transformation Composition</span>
+                <span class="badge badge-sm badge-accent">Kinematic Chains</span>
+              </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary flex-shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- Lesson 3 -->
+      <a href="/modules/02-matrices/03-determinants" class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+        <div class="card-body">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge badge-primary">Lesson 3</span>
+                <span class="badge badge-outline">35 min</span>
+              </div>
+              <h2 class="card-title text-2xl mb-2">Determinants & Inverses</h2>
+              <p class="text-base-content/70 mb-4">
+                Learn about determinants as area scaling factors, matrix invertibility, and robot
+                singularities. Includes interactive 2-link robot arm demonstrating singular configurations.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="badge badge-sm">Determinant</span>
+                <span class="badge badge-sm">Matrix Inverse</span>
+                <span class="badge badge-sm">Singular Matrices</span>
+                <span class="badge badge-sm badge-accent">Robot Singularities</span>
+              </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary flex-shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="alert alert-info mb-8">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Module Objectives</h3>
+        <div class="text-sm">
+          By the end of this module, you'll understand matrix operations and be able to:
+          <ul class="list-disc list-inside mt-2 space-y-1">
+            <li>Perform matrix addition, multiplication, and transpose operations</li>
+            <li>Compose transformations using matrix multiplication</li>
+            <li>Calculate determinants and understand their geometric meaning</li>
+            <li>Identify singular configurations in robot systems</li>
+            <li>Apply matrix operations to robot kinematic chains</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center">
+      <a href="/modules/01-foundations" class="btn btn-outline">
+        ← Module 1: Foundations
+      </a>
+      <a href="/modules/03-transformations" class="btn btn-primary shadow-md shadow-primary/30">
+        Module 3: Transformations →
+      </a>
+    </div>
+  </div>
+</Layout>

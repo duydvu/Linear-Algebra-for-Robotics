@@ -1,0 +1,110 @@
+---
+import '../../styles/global.css';
+import Navigation from './Navigation.astro';
+import ModuleNav from './ModuleNav.astro';
+import Footer from './Footer.astro';
+import LessonBottomNav from './LessonBottomNav.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  module?: number;
+  lesson?: number;
+  frontmatter?: {
+    title?: string;
+    description?: string;
+    module?: number;
+    lesson?: number;
+  };
+}
+
+const props = Astro.props;
+const fm = props.frontmatter || {};
+const title = props.title || fm.title || '';
+const description = props.description || fm.description || "Interactive Linear Algebra for Robotics - Learn through visualization and hands-on examples";
+const module = props.module || fm.module;
+const lesson = props.lesson || fm.lesson;
+---
+
+<!doctype html>
+<html lang="en" data-theme="robotics-light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | Linear Algebra for Robotics</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-base-100 flex flex-col">
+    <Navigation />
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl flex-1" style="container-type: inline-size;">
+      {module && lesson && (
+        <ModuleNav module={module} lesson={lesson} />
+      )}
+
+      <article class="mdx-content">
+        <slot />
+      </article>
+
+      {module && lesson && (
+        <LessonBottomNav module={module} lesson={lesson} />
+      )}
+    </main>
+
+    <Footer />
+
+    <script>
+      // Theme toggle functionality
+      const themeToggle = document.getElementById('theme-toggle');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const html = document.documentElement;
+
+      function updateThemeIcon(theme: string) {
+        if (theme === 'robotics-dark') {
+          moonIcon?.classList.add('hidden');
+          sunIcon?.classList.remove('hidden');
+        } else {
+          moonIcon?.classList.remove('hidden');
+          sunIcon?.classList.add('hidden');
+        }
+      }
+
+      // Load saved theme or default to robotics-light
+      const savedTheme = localStorage.getItem('theme') || 'robotics-light';
+      html.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+
+      themeToggle?.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'robotics-light' ? 'robotics-dark' : 'robotics-light';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+      });
+
+      // Progress tracking
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/modules/')) {
+        const visited = JSON.parse(localStorage.getItem('visited-lessons') || '[]');
+        if (!visited.includes(currentPath)) {
+          visited.push(currentPath);
+          localStorage.setItem('visited-lessons', JSON.stringify(visited));
+        }
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  :global(html) {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+</style>

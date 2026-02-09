@@ -1,0 +1,166 @@
+---
+layout: ../../../components/layout/Layout.astro
+title: "Dot Product & Projections"
+description: "Master the dot product and learn to compute angles between robot links"
+module: 1
+lesson: 2
+---
+
+import DotProductViz from '../../../components/interactive/vectors/DotProductViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Dot Product & Projections
+
+The **dot product** (also called scalar product) is one of the most important operations in robotics. It tells us how much two vectors point in the same direction and is essential for computing angles between robot links.
+
+## What is the Dot Product?
+
+The dot product of two vectors produces a **scalar** (single number):
+
+$$\vec{a} \cdot \vec{b} = a_x b_x + a_y b_y + a_z b_z$$
+
+In 2D: $\vec{a} \cdot \vec{b} = a_x b_x + a_y b_y$
+
+### Geometric Interpretation
+
+The dot product also equals:
+
+$$\vec{a} \cdot \vec{b} = |\vec{a}||\vec{b}|\cos(\theta)$$
+
+where $\theta$ is the angle between the vectors.
+
+This formula connects:
+- **Algebraic** definition (multiply components)
+- **Geometric** meaning (angle between vectors)
+
+## Interactive Exploration
+
+Adjust the vectors to see how the dot product changes with direction and magnitude:
+
+<DotProductViz client:load />
+
+## Understanding the Result
+
+The sign of the dot product tells us about the angle:
+
+- **Positive** ($\vec{a} \cdot \vec{b} > 0$): Vectors point in similar directions ($\theta < 90°$)
+- **Zero** ($\vec{a} \cdot \vec{b} = 0$): Vectors are perpendicular ($\theta = 90°$)
+- **Negative** ($\vec{a} \cdot \vec{b} < 0$): Vectors point in opposite directions ($\theta > 90°$)
+
+<Callout type="info" title="Key Insight">
+The dot product measures **alignment**. Maximum when parallel, zero when perpendicular, negative when opposing.
+</Callout>
+
+<Example title="Robot Arm Joint Angle" robotics={true}>
+A 2-link robot arm has:
+- Link 1 pointing at $\vec{L}_1 = (1, 0)$
+- Link 2 pointing at $\vec{L}_2 = (0.7, 0.7)$ (at 45° from link 1)
+
+To find the angle between them:
+
+$$\cos(\theta) = \frac{\vec{L}_1 \cdot \vec{L}_2}{|\vec{L}_1||\vec{L}_2|} = \frac{0.7}{1 \times 1} = 0.7$$
+
+$$\theta = \arccos(0.7) \approx 45°$$
+</Example>
+
+## Computing Angles
+
+We can rearrange the geometric formula to find angles:
+
+$$\theta = \arccos\left(\frac{\vec{a} \cdot \vec{b}}{|\vec{a}||\vec{b}|}\right)$$
+
+This is **crucial** in robotics for:
+- Measuring joint angles
+- Checking if the robot is at a desired configuration
+- Collision detection
+- Path planning
+
+<Callout type="warning" title="Numerical Stability">
+When implementing this, ensure $\frac{\vec{a} \cdot \vec{b}}{|\vec{a}||\vec{b}|}$ stays in $[-1, 1]$ to avoid `arccos` errors. Floating-point math can sometimes give values slightly outside this range!
+</Callout>
+
+## Vector Projection
+
+The **projection** of $\vec{a}$ onto $\vec{b}$ is the "shadow" of $\vec{a}$ along $\vec{b}$'s direction:
+
+$$\text{proj}_{\vec{b}}\vec{a} = \frac{\vec{a} \cdot \vec{b}}{|\vec{b}|^2}\vec{b}$$
+
+The projection has magnitude:
+
+$$|\text{proj}_{\vec{b}}\vec{a}| = \frac{|\vec{a} \cdot \vec{b}|}{|\vec{b}|} = |\vec{a}||\cos(\theta)|$$
+
+<Example title="Force Analysis on Robot Gripper" robotics={true}>
+A robot gripper exerts force $\vec{F} = (5, 3)$ N on an object. The surface normal is $\vec{n} = (1, 0)$.
+
+The force component perpendicular to the surface:
+
+$$F_{\perp} = \text{proj}_{\vec{n}}\vec{F} = \frac{(5, 3) \cdot (1, 0)}{1^2}(1, 0) = (5, 0) \text{ N}$$
+
+This is the "squeezing" force. The remaining $(0, 3)$ N is the tangential (sliding) force.
+</Example>
+
+## Properties of the Dot Product
+
+1. **Commutative**: $\vec{a} \cdot \vec{b} = \vec{b} \cdot \vec{a}$
+2. **Distributive**: $\vec{a} \cdot (\vec{b} + \vec{c}) = \vec{a} \cdot \vec{b} + \vec{a} \cdot \vec{c}$
+3. **Scalar multiplication**: $(k\vec{a}) \cdot \vec{b} = k(\vec{a} \cdot \vec{b})$
+4. **Self dot product**: $\vec{a} \cdot \vec{a} = |\vec{a}|^2$
+
+## Robotics Applications
+
+### 1. Forward Kinematics Verification
+Check if computed end-effector position matches expected direction.
+
+### 2. Sensor Alignment
+Determine if a sensor is pointing toward a target:
+
+$$\text{alignment} = \frac{\vec{sensor} \cdot \vec{to\_target}}{|\vec{sensor}||\vec{to\_target}|}$$
+
+If close to 1, sensor is well-aligned.
+
+### 3. Workspace Analysis
+Check if a point is within the robot's reachable workspace by comparing direction vectors.
+
+### 4. Obstacle Avoidance
+Compute the component of velocity toward an obstacle:
+
+$$v_{toward} = \vec{v}_{robot} \cdot \hat{n}_{to\_obstacle}$$
+
+If positive, robot is approaching the obstacle.
+
+<Example title="Mobile Robot Navigation" robotics={true}>
+A robot at $(0, 0)$ moving with velocity $\vec{v} = (1, 1)$ m/s detects an obstacle at $(3, 0)$.
+
+Direction to obstacle: $\vec{d} = (3, 0) - (0, 0) = (3, 0)$
+
+Unit vector: $\hat{d} = (1, 0)$
+
+Velocity toward obstacle: $\vec{v} \cdot \hat{d} = (1, 1) \cdot (1, 0) = 1$ m/s
+
+The robot is approaching at 1 m/s. Time to collision: $\frac{3 \text{ m}}{1 \text{ m/s}} = 3$ seconds.
+</Example>
+
+## Key Takeaways
+
+- Dot product measures how aligned two vectors are
+- Use it to compute angles: $\theta = \arccos\left(\frac{\vec{a} \cdot \vec{b}}{|\vec{a}||\vec{b}|}\right)$
+- Projection gives the component of one vector along another
+- Critical for joint angle computation, force analysis, and navigation
+- Perpendicular vectors have dot product zero
+
+## Practice Problems
+
+1. Calculate $\vec{a} \cdot \vec{b}$ for $\vec{a} = (3, 4)$ and $\vec{b} = (2, 1)$.
+
+2. Find the angle between $(1, 0)$ and $(1, 1)$.
+
+3. Two robot links form vectors $(2, 1)$ and $(-1, 3)$. What's the angle between them?
+
+4. Project $\vec{a} = (4, 3)$ onto $\vec{b} = (1, 0)$. What's the magnitude of the projection?
+
+5. A force $(10, 5)$ N acts on a surface with normal $(0, 1)$. What's the perpendicular component?
+
+<Callout type="success" title="Coming Up Next">
+The **cross product** takes two vectors and produces a third vector perpendicular to both. This is essential for computing torques in robot manipulators!
+</Callout>

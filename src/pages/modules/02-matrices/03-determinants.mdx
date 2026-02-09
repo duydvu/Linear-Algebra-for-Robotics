@@ -1,0 +1,285 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Determinants & Inverses'
+description: 'Understanding determinants, matrix invertibility, and robot singularities'
+module: 2
+lesson: 3
+---
+
+import DeterminantViz from '../../../components/interactive/matrices/DeterminantViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Determinants & Inverses
+
+The **determinant** is a scalar value computed from a square matrix that reveals crucial properties: whether the matrix is invertible, how it scales area/volume, and whether it reverses orientation.
+
+In robotics, determinants help identify **singular configurations** where a robot loses degrees of freedom.
+
+## What is a Determinant?
+
+The determinant of a square matrix *A* is denoted det(*A*) or |*A*|.
+
+### 2×2 Determinant
+
+$$
+\det\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix} = ad - bc
+$$
+
+**Example**:
+
+$$
+\det\begin{bmatrix}
+3 & 1 \\
+2 & 4
+\end{bmatrix} = (3)(4) - (1)(2) = 12 - 2 = 10
+$$
+
+### 3×3 Determinant
+
+Use cofactor expansion (more complex):
+
+$$
+\det\begin{bmatrix}
+a & b & c \\
+d & e & f \\
+g & h & i
+\end{bmatrix} = a\det\begin{bmatrix}
+e & f \\
+h & i
+\end{bmatrix} - b\det\begin{bmatrix}
+d & f \\
+g & i
+\end{bmatrix} + c\det\begin{bmatrix}
+d & e \\
+g & h
+\end{bmatrix}
+$$
+
+<Callout type="info" title="Larger Matrices">
+
+For *n*×*n* matrices, determinants can be computed using:
+- **Cofactor expansion** (recursive, slow for large *n*)
+- **Row reduction** to triangular form (more efficient)
+- **Library functions** (what we actually use in practice)
+
+In this course, we'll focus on understanding what determinants *mean* rather than hand-calculating large ones.
+
+</Callout>
+
+## Geometric Interpretation
+
+The determinant represents **how much the transformation scales area** (2D) or **volume** (3D).
+
+### Area Scaling in 2D
+
+Consider the unit square with corners at (0,0), (1,0), (1,1), (0,1). It has **area = 1**.
+
+When transformed by matrix *A*, it becomes a parallelogram with **area = |det(*A*)|**.
+
+<Example title="Scaling Example">
+
+$$
+A = \begin{bmatrix}
+2 & 0 \\
+0 & 3
+\end{bmatrix}, \quad \det(A) = 6
+$$
+
+This matrix scales *x* by 2 and *y* by 3. The unit square (area 1) becomes a rectangle with area **2 × 3 = 6**. ✓
+
+</Example>
+
+### Sign of the Determinant
+
+- **det(*A*) > 0**: Transformation preserves orientation (no flip)
+- **det(*A*) < 0**: Transformation reverses orientation (reflection)
+- **det(*A*) = 0**: Transformation collapses space (singular)
+
+## Singular Matrices
+
+A matrix is **singular** if det(*A*) = 0. This means:
+
+1. The matrix **collapses space** into a lower dimension
+   - 2D → 1D (squashes to a line)
+   - 3D → 2D (squashes to a plane) or 3D → 1D (squashes to a line)
+2. The matrix is **not invertible** (no inverse exists)
+3. The columns/rows are **linearly dependent**
+
+<Callout type="warning" title="Why Singular Matrices Matter in Robotics">
+
+When a robot's **Jacobian matrix** has determinant ≈ 0, the robot is in a **singular configuration**:
+- Loses control in certain directions
+- Cannot generate forces/velocities in some directions
+- Infinite joint velocities may be needed for certain end-effector motions
+- Numerical instability in inverse kinematics
+
+**Avoiding singularities is critical for robot control!**
+
+</Callout>
+
+<Example title="Singular Configuration" robotics>
+
+A 2-link planar robot arm is **singular** when:
+
+1. **Fully extended** (elbow angle θ₂ = 0° or 180°)
+   - Cannot move perpendicular to the arm direction
+   - Jacobian determinant = 0
+
+2. **Fully folded** (elbow angle θ₂ = ±180°)
+   - Workspace shrinks to a point
+   - Jacobian determinant = 0
+
+Try these configurations in the interactive demo below!
+
+</Example>
+
+## Matrix Inverse
+
+If det(*A*) ≠ 0, the matrix is **invertible** and has an inverse *A*<sup>-1</sup> such that:
+
+$$
+A \cdot A^{-1} = A^{-1} \cdot A = I
+$$
+
+where *I* is the identity matrix.
+
+### 2×2 Inverse Formula
+
+$$
+\begin{bmatrix}
+a & b \\
+c & d
+\end{bmatrix}^{-1} = \frac{1}{ad - bc} \begin{bmatrix}
+d & -b \\
+-c & a
+\end{bmatrix}
+$$
+
+Note: The inverse only exists if det(*A*) = *ad* - *bc* ≠ 0.
+
+**Example**:
+
+$$
+A = \begin{bmatrix}
+3 & 1 \\
+2 & 4
+\end{bmatrix}, \quad \det(A) = 10
+$$
+
+$$
+A^{-1} = \frac{1}{10} \begin{bmatrix}
+4 & -1 \\
+-2 & 3
+\end{bmatrix} = \begin{bmatrix}
+0.4 & -0.1 \\
+-0.2 & 0.3
+\end{bmatrix}
+$$
+
+### Properties of Inverses
+
+1. (*A*<sup>-1</sup>)<sup>-1</sup> = *A*
+2. (*AB*)<sup>-1</sup> = *B*<sup>-1</sup>*A*<sup>-1</sup> (order reverses!)
+3. (*A*<sup>T</sup>)<sup>-1</sup> = (*A*<sup>-1</sup>)<sup>T</sup>
+4. det(*A*<sup>-1</sup>) = 1 / det(*A*)
+
+<Example title="Inverse Kinematics" robotics>
+
+In robotics, we often need to **solve for joint angles** given a desired end-effector position:
+
+$$
+\mathbf{p}_{\text{desired}} = T(\mathbf{q}) \cdot \mathbf{p}_0
+$$
+
+If the transformation *T* is invertible:
+
+$$
+\mathbf{q} = T^{-1}(\mathbf{p}_{\text{desired}})
+$$
+
+This is **inverse kinematics** (IK) — finding joint angles that achieve a target pose.
+
+**Problem**: When the Jacobian is singular, we cannot invert it directly. Advanced techniques (pseudoinverse, numerical optimization) are needed.
+
+</Example>
+
+## Interactive Exploration
+
+### Part 1: Determinant and Area Scaling
+
+Adjust the transformation matrix and observe how the unit square transforms. The area of the transformed shape equals |det(*A*)|.
+
+### Part 2: Robot Singularities
+
+Toggle to "Show robot arm" to see a 2-link planar arm. Adjust the joint angles to find singular configurations where det(*J*) ≈ 0.
+
+<DeterminantViz client:load />
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Determinant** measures area/volume scaling factor
+2. **det(*A*) = 0** means the matrix is singular (not invertible, collapses space)
+3. **Negative determinant** means the transformation reverses orientation
+4. **Matrix inverse** undoes the transformation: *A A*<sup>-1</sup> = *I*
+5. **Robot singularities** occur when the Jacobian determinant ≈ 0, causing loss of control
+
+</Callout>
+
+## Identifying Singularities
+
+Common robot singularities:
+
+1. **Alignment singularities**: Multiple joints aligned (e.g., fully extended arm)
+2. **Wrist singularities**: Wrist axes align (certain orientations)
+3. **Workspace boundary**: At the edge of reachable space
+
+**Strategy**: Monitor det(*J*) during motion planning and avoid regions where |det(*J*)| < ε (small threshold).
+
+## Practice Problems
+
+1. Calculate det(*A*) for:
+   $$
+   A = \begin{bmatrix}
+   2 & 3 \\
+   1 & 4
+   \end{bmatrix}
+   $$
+
+2. Is this matrix singular?
+   $$
+   B = \begin{bmatrix}
+   2 & 4 \\
+   1 & 2
+   \end{bmatrix}
+   $$
+
+3. Find the inverse of matrix *A* from problem 1.
+
+<details>
+<summary>**Answers**</summary>
+
+1. det(*A*) = (2)(4) - (3)(1) = 8 - 3 = **5**
+
+2. det(*B*) = (2)(2) - (4)(1) = 4 - 4 = **0**. Yes, singular! (Second row is 0.5 × first row)
+
+3.
+$$
+A^{-1} = \frac{1}{5} \begin{bmatrix}
+4 & -3 \\
+-1 & 2
+\end{bmatrix} = \begin{bmatrix}
+0.8 & -0.6 \\
+-0.2 & 0.4
+\end{bmatrix}
+$$
+
+</details>
+
+## Next Steps
+
+Now that you understand matrices, their properties, and when they're invertible, we're ready to explore **linear transformations** — how matrices represent rotations, translations, and scaling in 2D and 3D space.
+

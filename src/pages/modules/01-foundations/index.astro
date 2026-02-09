@@ -1,0 +1,122 @@
+---
+import Layout from '../../../components/layout/Layout.astro';
+
+const lessons = [
+  {
+    id: 1,
+    title: 'Vectors in Robotics',
+    description: 'Learn vector fundamentals, addition, and their role in robot motion',
+    path: '/modules/01-foundations/01-vectors',
+    duration: '20 min'
+  },
+  {
+    id: 2,
+    title: 'Dot Product & Projections',
+    description: 'Master computing angles between robot links and vector projections',
+    path: '/modules/01-foundations/02-dot-product',
+    duration: '25 min'
+  },
+  {
+    id: 3,
+    title: 'Cross Product',
+    description: 'Understand torque calculation and perpendicular vectors in 3D',
+    path: '/modules/01-foundations/03-cross-product',
+    duration: '25 min'
+  }
+];
+---
+
+<Layout title="Module 1: Foundations">
+  <div class="max-w-4xl mx-auto">
+    <!-- Module Header -->
+    <div class="mb-8">
+      <div class="badge badge-primary mb-2">Module 1</div>
+      <h1 class="text-4xl font-bold mb-4">Foundations: Vectors</h1>
+      <p class="text-lg text-base-content/70">
+        Master the fundamentals of vectors and their applications in robotics. Learn vector operations,
+        dot products, and cross products through interactive visualizations.
+      </p>
+    </div>
+
+    <!-- Module Overview -->
+    <div class="card bg-base-100 border border-base-content/[0.06] shadow-sm mb-8">
+      <div class="card-body">
+        <h2 class="card-title">What You'll Learn</h2>
+        <ul class="list-disc list-inside space-y-2 text-base-content/80">
+          <li>Represent robot positions, velocities, and forces as vectors</li>
+          <li>Perform vector addition and scalar multiplication</li>
+          <li>Use dot product to compute angles between robot links</li>
+          <li>Apply cross product to calculate torques and surface normals</li>
+          <li>Build intuition through interactive 2D and 3D visualizations</li>
+        </ul>
+
+        <div class="flex gap-4 mt-4">
+          <div class="stat place-items-center">
+            <div class="stat-title">Lessons</div>
+            <div class="stat-value text-primary">3</div>
+          </div>
+          <div class="stat place-items-center">
+            <div class="stat-title">Interactives</div>
+            <div class="stat-value text-secondary">3</div>
+          </div>
+          <div class="stat place-items-center">
+            <div class="stat-title">Duration</div>
+            <div class="stat-value text-accent">~70 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lessons -->
+    <div class="space-y-4">
+      <h2 class="text-2xl font-bold mb-4">Lessons</h2>
+
+      {lessons.map((lesson) => (
+        <a href={lesson.path} class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="badge badge-primary">Lesson {lesson.id}</div>
+                  <span class="text-sm text-base-content/60">{lesson.duration}</span>
+                </div>
+                <h3 class="card-title">{lesson.title}</h3>
+                <p class="text-base-content/70">{lesson.description}</p>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <!-- Prerequisites -->
+    <div class="alert alert-info mt-8">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Prerequisites</h3>
+        <div class="text-sm">Basic algebra and trigonometry (sin, cos, tan). No prior robotics experience required!</div>
+      </div>
+    </div>
+
+    <!-- Next Module -->
+    <div class="card bg-gradient-to-r from-primary/[0.08] to-secondary/[0.05] border border-primary/15 shadow-sm mt-8">
+      <div class="card-body">
+        <h3 class="card-title">After This Module</h3>
+        <p>
+          Once you complete the foundations, you'll move on to <strong>Module 2: Matrix Operations</strong>,
+          where you'll learn how matrices represent robot configurations and transformations.
+        </p>
+        <div class="card-actions">
+          <a href="/modules/01-foundations/01-vectors" class="btn btn-primary shadow-md shadow-primary/30">
+            Start Learning
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

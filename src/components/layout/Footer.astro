@@ -1,0 +1,18 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer footer-center py-8 px-4 bg-base-content/[0.03] border-t border-base-content/5 text-base-content mt-auto">
+  <nav class="grid grid-flow-col gap-4">
+    <a href="/" class="link link-hover text-base-content/60 hover:text-primary transition-colors">Home</a>
+    <a href="/resources" class="link link-hover text-base-content/60 hover:text-primary transition-colors">Resources</a>
+    <a href="/about" class="link link-hover text-base-content/60 hover:text-primary transition-colors">About</a>
+  </nav>
+
+  <aside>
+    <div class="w-16 h-px bg-primary/30 mx-auto mb-4"></div>
+    <p class="font-medium">Interactive Linear Algebra for Robotics</p>
+    <p class="text-sm opacity-60">Learn through visualization and hands-on examples</p>
+    <p class="text-sm opacity-60 mt-2">&copy; {currentYear} - Built with Astro</p>
+  </aside>
+</footer>

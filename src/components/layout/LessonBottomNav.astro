@@ -1,0 +1,120 @@
+---
+interface Props {
+  module: number;
+  lesson: number;
+}
+
+const { module, lesson } = Astro.props;
+
+const moduleData = {
+  1: {
+    name: 'Foundations',
+    lessons: [
+      { id: 1, title: 'Vectors in Robotics', path: '/modules/01-foundations/01-vectors' },
+      { id: 2, title: 'Dot Product & Projections', path: '/modules/01-foundations/02-dot-product' },
+      { id: 3, title: 'Cross Product', path: '/modules/01-foundations/03-cross-product' }
+    ]
+  },
+  2: {
+    name: 'Matrices',
+    lessons: [
+      { id: 1, title: 'Matrix Fundamentals', path: '/modules/02-matrices/01-fundamentals' },
+      { id: 2, title: 'Matrix Multiplication', path: '/modules/02-matrices/02-multiplication' },
+      { id: 3, title: 'Determinants & Inverses', path: '/modules/02-matrices/03-determinants' }
+    ]
+  },
+  3: {
+    name: 'Transformations',
+    lessons: [
+      { id: 1, title: '2D Transformations', path: '/modules/03-transformations/01-2d-transforms' },
+      { id: 2, title: '3D Rotations', path: '/modules/03-transformations/02-3d-rotations' },
+      { id: 3, title: 'Homogeneous Coordinates', path: '/modules/03-transformations/03-homogeneous' }
+    ]
+  },
+  4: {
+    name: 'Advanced',
+    lessons: [
+      { id: 1, title: 'Eigenvalues & Eigenvectors', path: '/modules/04-advanced/01-eigenvalues' },
+      { id: 2, title: 'Coordinate Frames', path: '/modules/04-advanced/02-frames' },
+      { id: 3, title: 'Rotation Representations', path: '/modules/04-advanced/03-rotation-representations' }
+    ]
+  },
+  5: {
+    name: 'Applications',
+    lessons: [
+      { id: 1, title: 'Forward Kinematics', path: '/modules/05-applications/01-forward-kinematics' },
+      { id: 2, title: 'Velocity Kinematics', path: '/modules/05-applications/02-velocity-kinematics' },
+      { id: 3, title: 'Path Planning', path: '/modules/05-applications/03-path-planning' }
+    ]
+  }
+};
+
+const currentModule = moduleData[module as keyof typeof moduleData];
+
+let prevLesson: { title: string; path: string; moduleName?: string } | null = null;
+let nextLesson: { title: string; path: string; moduleName?: string } | null = null;
+
+if (currentModule) {
+  const currentIndex = currentModule.lessons.findIndex(l => l.id === lesson);
+
+  if (currentIndex > 0) {
+    prevLesson = currentModule.lessons[currentIndex - 1];
+  } else if (module > 1) {
+    const prevModule = moduleData[(module - 1) as keyof typeof moduleData];
+    const lastLesson = prevModule.lessons[prevModule.lessons.length - 1];
+    prevLesson = { ...lastLesson, moduleName: prevModule.name };
+  }
+
+  if (currentIndex < currentModule.lessons.length - 1) {
+    nextLesson = currentModule.lessons[currentIndex + 1];
+  } else if (module < 5) {
+    const nextModule = moduleData[(module + 1) as keyof typeof moduleData];
+    const firstLesson = nextModule.lessons[0];
+    nextLesson = { ...firstLesson, moduleName: nextModule.name };
+  }
+}
+---
+
+<nav class="mt-12 pt-8 border-t border-base-content/10">
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Previous -->
+    <div>
+      {prevLesson && (
+        <a href={prevLesson.path} class="group flex flex-col p-4 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all duration-200">
+          <span class="text-xs text-base-content/50 mb-1 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Previous
+          </span>
+          <span class="font-medium text-sm group-hover:text-primary transition-colors">
+            {prevLesson.title}
+          </span>
+          {prevLesson.moduleName && (
+            <span class="text-xs text-base-content/40 mt-0.5">{prevLesson.moduleName}</span>
+          )}
+        </a>
+      )}
+    </div>
+
+    <!-- Next -->
+    <div class="text-right">
+      {nextLesson && (
+        <a href={nextLesson.path} class="group flex flex-col items-end p-4 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all duration-200">
+          <span class="text-xs text-base-content/50 mb-1 flex items-center gap-1">
+            Next
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+          <span class="font-medium text-sm group-hover:text-primary transition-colors">
+            {nextLesson.title}
+          </span>
+          {nextLesson.moduleName && (
+            <span class="text-xs text-base-content/40 mt-0.5">{nextLesson.moduleName}</span>
+          )}
+        </a>
+      )}
+    </div>
+  </div>
+</nav>

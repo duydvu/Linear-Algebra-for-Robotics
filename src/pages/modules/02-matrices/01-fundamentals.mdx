@@ -1,0 +1,188 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Matrix Fundamentals'
+description: 'Understanding matrices, notation, and basic operations'
+module: 2
+lesson: 1
+---
+
+import MatrixCalculator from '../../../components/interactive/matrices/MatrixCalculator.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Matrix Fundamentals
+
+Matrices are rectangular arrays of numbers that represent linear transformations, systems of equations, and robot configurations. They're fundamental to describing how robots move and transform through space.
+
+## What is a Matrix?
+
+A **matrix** is a 2D array of numbers arranged in rows and columns:
+
+$$
+A = \begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23}
+\end{bmatrix}
+$$
+
+This is a **2×3 matrix** (2 rows, 3 columns). We denote the element in row *i* and column *j* as *a<sub>ij</sub>*.
+
+### Matrix Dimensions
+
+- **Square matrix**: Same number of rows and columns (e.g., 2×2, 3×3)
+- **Column vector**: *n*×1 matrix (single column)
+- **Row vector**: 1×*n* matrix (single row)
+
+<Example title="Robot Configuration Matrix" robotics>
+
+A 6-DOF robot arm's joint angles can be represented as a column vector (6×1 matrix):
+
+$$
+\mathbf{q} = \begin{bmatrix}
+\theta_1 \\
+\theta_2 \\
+\theta_3 \\
+\theta_4 \\
+\theta_5 \\
+\theta_6
+\end{bmatrix}
+$$
+
+where θ₁ through θ₆ are the joint angles.
+
+</Example>
+
+## Basic Matrix Operations
+
+### Matrix Addition
+
+Add corresponding elements. **Matrices must have the same dimensions.**
+
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix} +
+\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} =
+\begin{bmatrix}
+6 & 8 \\
+10 & 12
+\end{bmatrix}
+$$
+
+### Matrix Subtraction
+
+Subtract corresponding elements (same dimension requirement).
+
+### Scalar Multiplication
+
+Multiply every element by a scalar (number):
+
+$$
+3 \times \begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix} =
+\begin{bmatrix}
+3 & 6 \\
+9 & 12
+\end{bmatrix}
+$$
+
+### Transpose
+
+The **transpose** of a matrix swaps rows and columns:
+
+$$
+A = \begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{bmatrix}, \quad
+A^T = \begin{bmatrix}
+1 & 4 \\
+2 & 5 \\
+3 & 6
+\end{bmatrix}
+$$
+
+The element at position (*i*, *j*) in *A* becomes position (*j*, *i*) in *A<sup>T</sup>*.
+
+<Callout type="info" title="Properties of Transpose">
+
+- (*A<sup>T</sup>*)<sup>T</sup> = *A*
+- (*A* + *B*)<sup>T</sup> = *A<sup>T</sup>* + *B<sup>T</sup>*
+- (*cA*)<sup>T</sup> = *c A<sup>T</sup>* (for scalar *c*)
+
+</Callout>
+
+## Special Matrices
+
+### Identity Matrix
+
+The **identity matrix** *I* is a square matrix with 1s on the diagonal and 0s elsewhere:
+
+$$
+I_3 = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+It acts like the number 1: *AI* = *IA* = *A*.
+
+### Zero Matrix
+
+All elements are zero. Acts like the number 0 in addition.
+
+### Diagonal Matrix
+
+Non-zero elements only on the diagonal:
+
+$$
+D = \begin{bmatrix}
+d_1 & 0 & 0 \\
+0 & d_2 & 0 \\
+0 & 0 & d_3
+\end{bmatrix}
+$$
+
+<Example title="Joint Velocity Limits" robotics>
+
+A diagonal matrix can represent maximum joint velocities for a robot:
+
+$$
+\dot{\mathbf{q}}_{\text{max}} = \begin{bmatrix}
+90° & 0 & 0 \\
+0 & 120° & 0 \\
+0 & 0 & 180°
+\end{bmatrix} \text{ per second}
+$$
+
+Each joint has independent velocity limits (no coupling between joints).
+
+</Example>
+
+## Interactive Explorer
+
+Try the basic matrix operations below. Adjust the matrix elements and see how operations work in real-time.
+
+<MatrixCalculator client:load />
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Matrices** represent linear transformations and store robot configurations
+2. **Addition/subtraction** work element-wise (same dimensions required)
+3. **Scalar multiplication** scales all elements uniformly
+4. **Transpose** reflects the matrix across its diagonal
+5. **Identity matrix** acts as "1" in matrix algebra
+
+</Callout>
+
+## Next Steps
+
+Now that you understand basic matrix operations, we'll explore **matrix multiplication** — the key operation for composing transformations and understanding robot kinematics.
+

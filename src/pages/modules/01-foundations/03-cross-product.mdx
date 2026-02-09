@@ -1,0 +1,203 @@
+---
+layout: ../../../components/layout/Layout.astro
+title: "Cross Product"
+description: "Learn the cross product for computing torques and perpendicular vectors in 3D robotics"
+module: 1
+lesson: 3
+---
+
+import CrossProductViz from '../../../components/interactive/vectors/CrossProductViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Cross Product
+
+The **cross product** (or vector product) is a 3D operation that takes two vectors and produces a third vector **perpendicular** to both. It's essential for computing torques, angular momentum, and surface normals in robotics.
+
+<Callout type="warning" title="3D Only!">
+The cross product is only defined for 3D vectors. There's no 2D equivalent (though there's a scalar version in 2D).
+</Callout>
+
+## What is the Cross Product?
+
+The cross product of two vectors produces a **vector**:
+
+$$\vec{a} \times \vec{b} = \begin{bmatrix} a_y b_z - a_z b_y \\ a_z b_x - a_x b_z \\ a_x b_y - a_y b_x \end{bmatrix}$$
+
+### Geometric Interpretation
+
+The magnitude of the cross product equals:
+
+$$|\vec{a} \times \vec{b}| = |\vec{a}||\vec{b}|\sin(\theta)$$
+
+where $\theta$ is the angle between vectors.
+
+**Direction**: The result is perpendicular to both $\vec{a}$ and $\vec{b}$, following the **right-hand rule**.
+
+## Interactive Exploration
+
+Explore the cross product in 3D. Notice how the red vector is always perpendicular to both blue and green vectors:
+
+<CrossProductViz client:load />
+
+## Right-Hand Rule
+
+To find the direction of $\vec{a} \times \vec{b}$:
+
+1. Point your **fingers** along $\vec{a}$
+2. **Curl** them toward $\vec{b}$
+3. Your **thumb** points along $\vec{a} \times \vec{b}$
+
+<Callout type="info" title="Anti-Commutative">
+Unlike dot product, cross product is **not** commutative:
+
+$$\vec{b} \times \vec{a} = -(\vec{a} \times \vec{b})$$
+
+Swapping order flips the direction!
+</Callout>
+
+## Geometric Meaning
+
+The magnitude $|\vec{a} \times \vec{b}|$ equals the **area of the parallelogram** formed by vectors $\vec{a}$ and $\vec{b}$.
+
+Try enabling "Show parallelogram" in the interactive demo to see this!
+
+Special cases:
+- **Parallel vectors**: $\vec{a} \times \vec{b} = \vec{0}$ (zero vector)
+- **Perpendicular vectors**: $|\vec{a} \times \vec{b}| = |\vec{a}||\vec{b}|$ (maximum magnitude)
+
+## Torque Calculation
+
+**Torque** ($\vec{\tau}$) is the rotational equivalent of force. It's calculated using the cross product:
+
+$$\vec{\tau} = \vec{r} \times \vec{F}$$
+
+where:
+- $\vec{r}$ is the position vector from the pivot point to where force is applied
+- $\vec{F}$ is the applied force
+
+<Example title="Robot Gripper Torque" robotics={true}>
+A robot gripper applies force $\vec{F} = (0, 10, 0)$ N at position $\vec{r} = (0.3, 0, 0)$ m from the wrist joint.
+
+Torque about the wrist:
+
+$$\vec{\tau} = \vec{r} \times \vec{F} = \begin{bmatrix} 0.3 \\ 0 \\ 0 \end{bmatrix} \times \begin{bmatrix} 0 \\ 10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 3 \end{bmatrix} \text{ N·m}$$
+
+The torque is 3 N·m around the z-axis, causing rotation in the xy-plane.
+</Example>
+
+## Properties of Cross Product
+
+1. **Anti-commutative**: $\vec{a} \times \vec{b} = -(\vec{b} \times \vec{a})$
+2. **Distributive**: $\vec{a} \times (\vec{b} + \vec{c}) = \vec{a} \times \vec{b} + \vec{a} \times \vec{c}$
+3. **Scalar multiplication**: $(k\vec{a}) \times \vec{b} = k(\vec{a} \times \vec{b})$
+4. **Self cross product**: $\vec{a} \times \vec{a} = \vec{0}$
+
+### Perpendicularity Check
+
+If $\vec{c} = \vec{a} \times \vec{b}$, then:
+
+$$\vec{a} \cdot \vec{c} = 0 \quad \text{and} \quad \vec{b} \cdot \vec{c} = 0$$
+
+The result is perpendicular to both input vectors!
+
+## Surface Normals
+
+A **normal vector** is perpendicular to a surface. Given two vectors in the plane, their cross product gives the normal:
+
+<Example title="Robot Path Planning on Slopes" robotics={true}>
+A robot navigates a sloped surface defined by two edge vectors:
+- $\vec{e}_1 = (1, 0, 0.2)$ (slightly upward)
+- $\vec{e}_2 = (0, 1, 0.1)$ (slightly upward)
+
+Surface normal:
+
+$$\vec{n} = \vec{e}_1 \times \vec{e}_2 = \begin{bmatrix} -0.2 \\ -0.1 \\ 1 \end{bmatrix}$$
+
+This tells the robot which way is "up" relative to the surface. The unit normal is:
+
+$$\hat{n} = \frac{\vec{n}}{|\vec{n}|} = \frac{(-0.2, -0.1, 1)}{1.025} \approx (-0.195, -0.098, 0.976)$$
+</Example>
+
+## Angular Velocity and Momentum
+
+In robotics, angular velocity ($\vec{\omega}$) and angular momentum ($\vec{L}$) involve cross products:
+
+$$\vec{v} = \vec{\omega} \times \vec{r}$$
+
+This gives the linear velocity of a point at position $\vec{r}$ on a rotating body.
+
+<Example title="Rotating Robot Arm" robotics={true}>
+A robot link rotates with angular velocity $\vec{\omega} = (0, 0, 2)$ rad/s (around z-axis).
+
+A point at $\vec{r} = (0.5, 0, 0)$ m on the link has velocity:
+
+$$\vec{v} = \vec{\omega} \times \vec{r} = \begin{bmatrix} 0 \\ 0 \\ 2 \end{bmatrix} \times \begin{bmatrix} 0.5 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} \text{ m/s}$$
+
+The point moves at 1 m/s in the y-direction (tangent to the rotation).
+</Example>
+
+## Coordinate Frame Construction
+
+Given one axis direction, we can construct a full coordinate frame using cross products:
+
+```
+Given: z-axis direction ẑ
+Choose: arbitrary vector v (not parallel to ẑ)
+Compute:
+  x̂ = v × ẑ (normalized)
+  ŷ = ẑ × x̂ (normalized)
+```
+
+This creates an orthonormal frame (mutually perpendicular unit vectors).
+
+## Robotics Applications
+
+### 1. Joint Torque Computation
+Essential for robot dynamics and control.
+
+### 2. Collision Detection
+Check if objects intersect by testing normal vectors.
+
+### 3. Camera and Sensor Orientation
+Define coordinate frames for vision systems.
+
+### 4. Path Planning
+Compute surface normals for navigation on irregular terrain.
+
+### 5. Jacobian Matrix
+Relates joint velocities to end-effector velocities (covered in Module 5).
+
+<Callout type="info" title="Implementation Note">
+Many robotics libraries (ROS, PyBullet, etc.) have built-in cross product functions. But understanding the math helps you debug and extend these tools!
+</Callout>
+
+## Key Takeaways
+
+- Cross product produces a vector perpendicular to both inputs
+- Magnitude equals area of parallelogram: $|\vec{a} \times \vec{b}| = |\vec{a}||\vec{b}|\sin(\theta)$
+- Direction follows right-hand rule
+- **Essential for torque**: $\vec{\tau} = \vec{r} \times \vec{F}$
+- Used for surface normals and coordinate frame construction
+- Anti-commutative: $\vec{a} \times \vec{b} = -(\vec{b} \times \vec{a})$
+
+## Practice Problems
+
+1. Calculate $\vec{a} \times \vec{b}$ for $\vec{a} = (1, 0, 0)$ and $\vec{b} = (0, 1, 0)$.
+
+2. Verify that $(1, 2, 3) \times (4, 5, 6)$ is perpendicular to both input vectors using dot product.
+
+3. A force of $(5, 0, 0)$ N is applied at position $(0, 0.2, 0)$ m. What's the torque about the origin?
+
+4. Find the unit normal to a surface spanned by $(1, 0, 0.1)$ and $(0, 1, 0.2)$.
+
+5. If $|\vec{a}| = 3$, $|\vec{b}| = 4$, and the angle between them is 30°, what is $|\vec{a} \times \vec{b}|$?
+
+<Callout type="success" title="Module 1 Complete!">
+Congratulations! You've mastered vector fundamentals. You now understand:
+- Vector addition and scalar multiplication
+- Dot product for measuring alignment and computing angles
+- Cross product for perpendicular vectors and torques
+
+**Next module**: We'll explore **matrices** - powerful tools for representing robot transformations and configurations!
+</Callout>

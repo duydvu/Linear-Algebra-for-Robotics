@@ -1,0 +1,146 @@
+---
+layout: ../../../components/layout/Layout.astro
+title: "Vectors in Robotics"
+description: "Learn vector fundamentals and their applications in robot position and motion"
+module: 1
+lesson: 1
+---
+
+import VectorAddition from '../../../components/interactive/vectors/VectorAddition.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Vectors in Robotics
+
+Vectors are the foundation of robotics mathematics. They allow us to represent positions, velocities, forces, and many other physical quantities that have both magnitude and direction.
+
+## What is a Vector?
+
+A **vector** is a mathematical object that has:
+- **Magnitude** (length or size)
+- **Direction** (which way it points)
+
+We write vectors in bold ($\mathbf{v}$) or with an arrow ($\vec{v}$). In 2D, a vector has two components:
+
+$$\vec{v} = \begin{bmatrix} v_x \\ v_y \end{bmatrix}$$
+
+In 3D, it has three components:
+
+$$\vec{v} = \begin{bmatrix} v_x \\ v_y \\ v_z \end{bmatrix}$$
+
+<Callout type="info" title="Notation">
+We'll use $(x, y)$ or $(x, y, z)$ notation for simplicity, but remember these represent column vectors in formal mathematics.
+</Callout>
+
+## Vectors in Robotics
+
+In robotics, vectors are everywhere:
+
+- **Position**: Where is the robot? $\vec{p} = (x, y, z)$
+- **Velocity**: How fast and in what direction is it moving? $\vec{v} = (\dot{x}, \dot{y}, \dot{z})$
+- **Acceleration**: How is the velocity changing? $\vec{a} = (\ddot{x}, \ddot{y}, \ddot{z})$
+- **Force**: What forces are acting on the robot? $\vec{F} = (F_x, F_y, F_z)$
+
+<Example title="Robot Position" robotics={true}>
+A mobile robot at position $(2, 3)$ meters means it's 2 meters along the x-axis and 3 meters along the y-axis from the origin.
+
+If the robot moves with velocity vector $(0.5, 0.3)$ m/s for 2 seconds, its new position will be:
+
+$$\vec{p}_{new} = \vec{p}_{old} + \vec{v} \cdot t = (2, 3) + (0.5, 0.3) \cdot 2 = (3, 3.6)$$
+</Example>
+
+## Vector Addition
+
+When we add two vectors, we combine their effects. This is called the **parallelogram rule** or **tip-to-tail method**.
+
+$$\vec{c} = \vec{a} + \vec{b} = (a_x + b_x, a_y + b_y)$$
+
+### Interactive Exploration
+
+Try adjusting the vectors below to see how vector addition works visually!
+
+<VectorAddition client:load />
+
+### Properties of Vector Addition
+
+1. **Commutative**: $\vec{a} + \vec{b} = \vec{b} + \vec{a}$
+2. **Associative**: $(\vec{a} + \vec{b}) + \vec{c} = \vec{a} + (\vec{b} + \vec{c})$
+3. **Identity**: $\vec{a} + \vec{0} = \vec{a}$
+4. **Inverse**: $\vec{a} + (-\vec{a}) = \vec{0}$
+
+<Example title="Robot Path Planning" robotics={true}>
+A robot needs to move from point A to point C. It can either:
+- Go directly: Follow vector $\vec{AC}$
+- Take a detour: Follow $\vec{AB}$ then $\vec{BC}$
+
+By vector addition: $\vec{AC} = \vec{AB} + \vec{BC}$
+
+The direct path and the detour lead to the same final position!
+</Example>
+
+## Scalar Multiplication
+
+Multiplying a vector by a scalar (number) scales its magnitude:
+
+$$k\vec{v} = (kv_x, kv_y, kv_z)$$
+
+- If $k > 1$: vector gets longer
+- If $0 < k < 1$: vector gets shorter
+- If $k < 0$: vector reverses direction
+
+<Example title="Robot Speed Control" robotics={true}>
+A robot moving with velocity $\vec{v} = (1, 0.5)$ m/s can:
+- Double its speed: $2\vec{v} = (2, 1)$ m/s
+- Go half as fast: $0.5\vec{v} = (0.5, 0.25)$ m/s
+- Reverse direction: $-\vec{v} = (-1, -0.5)$ m/s
+</Example>
+
+## Vector Magnitude
+
+The **magnitude** (or length) of a vector is calculated using the Pythagorean theorem:
+
+$$|\vec{v}| = \sqrt{v_x^2 + v_y^2 + v_z^2}$$
+
+In 2D: $|\vec{v}| = \sqrt{v_x^2 + v_y^2}$
+
+<Callout type="warning" title="Units Matter!">
+Always keep track of units. If position is in meters, velocity is in meters/second, and magnitude has those same units.
+</Callout>
+
+## Unit Vectors
+
+A **unit vector** has magnitude 1. We can create a unit vector by **normalizing** any non-zero vector:
+
+$$\hat{v} = \frac{\vec{v}}{|\vec{v}|}$$
+
+Unit vectors are useful for representing pure direction without magnitude.
+
+<Example title="Robot Heading Direction" robotics={true}>
+A robot moving with velocity $(3, 4)$ m/s:
+- Speed (magnitude): $\sqrt{3^2 + 4^2} = 5$ m/s
+- Direction (unit vector): $\hat{v} = \frac{(3, 4)}{5} = (0.6, 0.8)$
+
+The unit vector $(0.6, 0.8)$ tells us the robot's heading, while the magnitude tells us how fast.
+</Example>
+
+## Key Takeaways
+
+- Vectors represent quantities with both magnitude and direction
+- Vector addition combines effects (displacements, forces, etc.)
+- Scalar multiplication scales vector magnitude
+- Unit vectors represent pure direction
+- Vectors are fundamental for robot position, velocity, and control
+
+## Practice Problems
+
+1. A robot at position $(1, 2)$ moves by displacement $(-3, 4)$. What's its new position?
+
+2. Two forces act on a robot: $\vec{F}_1 = (10, 5)$ N and $\vec{F}_2 = (-3, 8)$ N. What's the net force?
+
+3. A velocity vector is $(6, 8)$ m/s. What's its magnitude? What's the unit vector?
+
+4. If a robot moves with constant velocity $(2, 1)$ m/s, where will it be after 3 seconds if it starts at the origin?
+
+<Callout type="success" title="Ready for More?">
+Now that you understand vector basics, the next lesson covers the **dot product** - a way to measure how much two vectors align with each other. This is crucial for computing angles in robot arms!
+</Callout>

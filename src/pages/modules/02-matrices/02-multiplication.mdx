@@ -1,0 +1,260 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Matrix Multiplication'
+description: 'Understanding matrix multiplication and transformation composition'
+module: 2
+lesson: 2
+---
+
+import MatrixMultiply from '../../../components/interactive/matrices/MatrixMultiply.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Matrix Multiplication
+
+Matrix multiplication is more complex than addition — and more powerful. It represents **composing transformations**, which is essential for robot kinematics where multiple joints create a chain of transformations.
+
+## The Row-Column Rule
+
+To multiply matrices *A* (size *m*×*n*) and *B* (size *n*×*p*), compute each element of the result *C* (size *m*×*p*):
+
+$$
+c_{ij} = \sum_{k=1}^{n} a_{ik} \cdot b_{kj}
+$$
+
+In words: **Take row *i* from *A*, column *j* from *B*, multiply corresponding elements, and sum them.**
+
+### Step-by-Step Example
+
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} = \;?
+$$
+
+**Element [1,1]**: Row 1 of *A* × Column 1 of *B*
+
+$$
+c_{11} = (1 \times 5) + (2 \times 7) = 5 + 14 = 19
+$$
+
+**Element [1,2]**: Row 1 of *A* × Column 2 of *B*
+
+$$
+c_{12} = (1 \times 6) + (2 \times 8) = 6 + 16 = 22
+$$
+
+**Element [2,1]**: Row 2 of *A* × Column 1 of *B*
+
+$$
+c_{21} = (3 \times 5) + (4 \times 7) = 15 + 28 = 43
+$$
+
+**Element [2,2]**: Row 2 of *A* × Column 2 of *B*
+
+$$
+c_{22} = (3 \times 6) + (4 \times 8) = 18 + 32 = 50
+$$
+
+**Result**:
+
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\begin{bmatrix}
+5 & 6 \\
+7 & 8
+\end{bmatrix} =
+\begin{bmatrix}
+19 & 22 \\
+43 & 50
+\end{bmatrix}
+$$
+
+<Callout type="warning" title="Dimension Requirements">
+
+For *AB* to be defined:
+- **Number of columns in *A*** must equal **number of rows in *B***
+- If *A* is *m*×*n* and *B* is *n*×*p*, then *AB* is *m*×*p*
+
+Example: (2×3) × (3×4) = (2×4) ✓
+<br />
+Example: (2×3) × (2×4) = undefined ✗
+
+</Callout>
+
+## Properties of Matrix Multiplication
+
+### Non-Commutative
+
+Generally, *AB* ≠ *BA*. **Order matters!**
+
+$$
+\begin{bmatrix}
+1 & 0 \\
+0 & 2
+\end{bmatrix}
+\begin{bmatrix}
+0 & 1 \\
+1 & 0
+\end{bmatrix} =
+\begin{bmatrix}
+0 & 1 \\
+2 & 0
+\end{bmatrix}
+$$
+
+$$
+\begin{bmatrix}
+0 & 1 \\
+1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+1 & 0 \\
+0 & 2
+\end{bmatrix} =
+\begin{bmatrix}
+0 & 2 \\
+1 & 0
+\end{bmatrix}
+$$
+
+Different results!
+
+### Associative
+
+(*AB*)*C* = *A*(*BC*) — you can group multiplications.
+
+### Distributive
+
+*A*(*B* + *C*) = *AB* + *AC*
+
+### Identity Property
+
+*AI* = *IA* = *A* (when dimensions match)
+
+## Geometric Interpretation: Transformation Composition
+
+Matrix multiplication represents **applying transformations in sequence**.
+
+If matrix *B* represents a transformation (e.g., rotation) and matrix *A* represents another transformation (e.g., scaling), then *AB* represents:
+
+1. **First apply *B*** to the input
+2. **Then apply *A*** to the result
+
+<Callout type="info" title="Reading Order">
+
+For *AB*: Read **right to left** for transformation order.
+- *AB* means "do *B* first, then *A*"
+- This is the opposite of function notation: *f*(*g*(*x*)) does *g* first
+
+</Callout>
+
+<Example title="Robot Kinematic Chain" robotics>
+
+A 3-joint robot arm has transformations at each joint:
+
+$$
+T_{\text{end}} = T_1 \cdot T_2 \cdot T_3
+$$
+
+where:
+- *T*₁ transforms from base to joint 1
+- *T*₂ transforms from joint 1 to joint 2
+- *T*₃ transforms from joint 2 to end-effector
+
+To find where the end-effector is relative to the base, multiply the matrices **in order**:
+
+$$
+\mathbf{p}_{\text{end}} = T_1 \cdot T_2 \cdot T_3 \cdot \mathbf{p}_{\text{local}}
+$$
+
+This is **forward kinematics** — computing end-effector position from joint angles.
+
+</Example>
+
+## Matrix-Vector Multiplication
+
+A special case: multiplying a matrix by a column vector.
+
+$$
+\begin{bmatrix}
+2 & 0 \\
+0 & 3
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+2
+\end{bmatrix} =
+\begin{bmatrix}
+2 \times 1 + 0 \times 2 \\
+0 \times 1 + 3 \times 2
+\end{bmatrix} =
+\begin{bmatrix}
+2 \\
+6
+\end{bmatrix}
+$$
+
+This **transforms the vector** (1, 2) into (2, 6).
+
+<Example title="Velocity Mapping" robotics>
+
+The **Jacobian matrix** *J* maps joint velocities to end-effector velocities:
+
+$$
+\mathbf{v}_{\text{end}} = J \cdot \dot{\mathbf{q}}
+$$
+
+where:
+- $\dot{\mathbf{q}}$ is the vector of joint velocities (angular velocities)
+- **v**<sub>end</sub> is the Cartesian velocity of the end-effector (linear + angular)
+
+Matrix-vector multiplication transforms joint-space velocities into task-space velocities.
+
+</Example>
+
+## Interactive Visualization
+
+Explore matrix multiplication below. Adjust the matrices and see how transformations compose. The visualization shows how the standard basis vectors (unit square) transform under *B*, then under *A*.
+
+<MatrixMultiply client:load />
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Matrix multiplication** uses the row-column rule (dot products)
+2. **Order matters**: *AB* ≠ *BA* (non-commutative)
+3. **Dimensions must match**: (*m*×*n*) × (*n*×*p*) = (*m*×*p*)
+4. **Geometric meaning**: Composing transformations (do right matrix first)
+5. **Robot kinematics**: Chain of joint transformations multiplies to give end-effector pose
+
+</Callout>
+
+## Practice Problems
+
+Try these mentally or with the interactive tool:
+
+1. What are the dimensions of (*3*×*5*) × (*5*×*2*)?
+2. Can you multiply (*2*×*3*) × (*2*×*3*)? Why or why not?
+3. If *A* is a 90° rotation and *B* is a scaling by 2, what does *AB* do? What about *BA*?
+
+<details>
+<summary>**Answers**</summary>
+
+1. (*3*×*2*) — 3 rows from first matrix, 2 columns from second
+2. No — 3 columns ≠ 2 rows (inner dimensions don't match)
+3. *AB*: scale first, then rotate. *BA*: rotate first, then scale. Different results! (Scaling changes direction, rotation preserves lengths)
+
+</details>
+
+## Next Steps
+
+Matrix multiplication is powerful, but not all matrices have inverses. Next, we'll explore **determinants** — a number that tells you if a matrix is invertible and reveals geometric properties like area scaling.
+

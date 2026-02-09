@@ -1,17 +1,154 @@
 ---
+import Layout from '../components/layout/Layout.astro';
+import Callout from '../components/content/Callout.astro';
 
+const modules = [
+  {
+    id: 1,
+    title: 'Foundations',
+    description: 'Master vector operations and their robotics applications',
+    lessons: 3,
+    path: '/modules/01-foundations',
+    icon: '📐'
+  },
+  {
+    id: 2,
+    title: 'Matrices',
+    description: 'Learn matrix operations for robot configuration spaces',
+    lessons: 3,
+    path: '/modules/02-matrices',
+    icon: '🔢'
+  },
+  {
+    id: 3,
+    title: 'Transformations',
+    description: 'Understand 2D/3D transformations and forward kinematics',
+    lessons: 3,
+    path: '/modules/03-transformations',
+    icon: '🔄'
+  },
+  {
+    id: 4,
+    title: 'Advanced Topics',
+    description: 'Explore eigenvalues, coordinate frames, and rotations',
+    lessons: 3,
+    path: '/modules/04-advanced',
+    icon: '🎓'
+  },
+  {
+    id: 5,
+    title: 'Applications',
+    description: 'Apply concepts to real robotics problems',
+    lessons: 3,
+    path: '/modules/05-applications',
+    icon: '🤖'
+  }
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Home">
+  <!-- Hero Section -->
+  <div class="hero min-h-[60vh] rounded-2xl mb-12 relative overflow-hidden bg-gradient-to-br from-primary/[0.15] via-base-100 to-secondary/[0.1]">
+    <!-- Grid pattern overlay -->
+    <div class="absolute inset-0 grid-pattern-bg"></div>
+    <!-- Decorative orbs -->
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/[0.07] blur-3xl"></div>
+    <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-secondary/[0.07] blur-3xl"></div>
+    <div class="hero-content text-center relative z-10">
+      <div class="max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          Interactive Learning Platform
+        </div>
+        <h1 class="text-5xl sm:text-6xl font-bold mb-6 tracking-tight">
+          Linear Algebra
+          <span class="text-primary"> for Robotics</span>
+        </h1>
+        <p class="text-xl text-base-content/70 mb-8 leading-relaxed">
+          Learn linear algebra through interactive visualizations and hands-on robotics examples.
+          Perfect for software engineers pivoting to robotics.
+        </p>
+        <a href="/modules/01-foundations" class="btn btn-primary btn-lg gap-2 shadow-lg shadow-primary/30 border-2 border-primary">
+          Start Learning
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="grid md:grid-cols-3 gap-6 mb-12">
+    <div class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
+      <div class="card-body items-center text-center p-8">
+        <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center text-3xl mb-4">🎨</div>
+        <h3 class="card-title">Interactive Visualizations</h3>
+        <p class="text-base-content/70">See concepts come to life with real-time 2D and 3D visualizations</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
+      <div class="card-body items-center text-center p-8">
+        <div class="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center text-3xl mb-4">🤖</div>
+        <h3 class="card-title">Robotics Applications</h3>
+        <p class="text-base-content/70">Every concept tied to practical robotics examples and simulations</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
+      <div class="card-body items-center text-center p-8">
+        <div class="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center text-3xl mb-4">📚</div>
+        <h3 class="card-title">Self-Paced Learning</h3>
+        <p class="text-base-content/70">Learn at your own pace with progress tracking and clear navigation</p>
+      </div>
+    </div>
+  </div>
+
+  <Callout type="info" title="Prerequisites">
+    This course assumes basic programming knowledge and high school mathematics. No prior robotics experience required!
+  </Callout>
+
+  <!-- Modules -->
+  <section class="mt-12">
+    <h2 class="text-3xl font-bold mb-6 tracking-tight">Learning Path</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {modules.map((module) => (
+        <a href={module.path} class="card bg-base-100 border border-base-content/[0.06] shadow-sm hover:shadow-lg hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 group">
+          <div class="card-body">
+            <div class="h-1 w-12 rounded-full bg-primary/40 group-hover:w-20 group-hover:bg-primary transition-all duration-300 mb-3"></div>
+            <div class="flex items-start justify-between">
+              <div class="text-4xl">{module.icon}</div>
+              <div class="badge badge-primary badge-outline">{`Module ${module.id}`}</div>
+            </div>
+            <h3 class="card-title mt-2">{module.title}</h3>
+            <p class="text-sm text-base-content/60">{module.description}</p>
+            <div class="card-actions justify-between items-center mt-4">
+              <span class="text-sm text-base-content/50">{module.lessons} lessons</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Quick Start -->
+  <section class="mt-12 card bg-gradient-to-r from-primary/[0.08] to-secondary/[0.05] border border-primary/15 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-2xl">Ready to Begin?</h2>
+      <p class="text-base-content/70">
+        Start with Module 1: Foundations to build your understanding of vectors
+        and their applications in robotics. Each lesson includes theory, examples,
+        and interactive components to reinforce your learning.
+      </p>
+      <div class="card-actions">
+        <a href="/modules/01-foundations" class="btn btn-primary shadow-md shadow-primary/30">
+          Go to Module 1
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
