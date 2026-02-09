@@ -32,12 +32,18 @@
   --color-base-300: #f1f5f9;
   --color-base-content: #1e293b;
   --color-info: #3b82f6;
+  --color-info-content: #ffffff;
   --color-success: #10b981;
+  --color-success-content: #ffffff;
   --color-warning: #f59e0b;
+  --color-warning-content: #1c1917;
   --color-error: #ef4444;
+  --color-error-content: #ffffff;
   --radius-selector: 1rem;
   --radius-field: 0.25rem;
   --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
   --border: 1px;
   --depth: 1;
   --noise: 0;
@@ -61,12 +67,18 @@
   --color-base-300: #334155;
   --color-base-content: #e2e8f0;
   --color-info: #60a5fa;
+  --color-info-content: #0f172a;
   --color-success: #34d399;
+  --color-success-content: #0f172a;
   --color-warning: #fbbf24;
+  --color-warning-content: #0f172a;
   --color-error: #f87171;
+  --color-error-content: #0f172a;
   --radius-selector: 1rem;
   --radius-field: 0.25rem;
   --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
   --border: 1px;
   --depth: 1;
   --noise: 0;
@@ -130,10 +142,18 @@ body {
   color: color-mix(in oklch, var(--color-base-content) 90%, transparent);
 }
 
-.mdx-content ul, .mdx-content ol {
+.mdx-content ul {
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   padding-left: 1.75rem;
+  list-style-type: disc;
+}
+
+.mdx-content ol {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding-left: 1.75rem;
+  list-style-type: decimal;
 }
 
 .mdx-content li {
@@ -284,10 +304,25 @@ canvas {
   margin-bottom: 0;
 }
 
-/* Reset mdx-content typography margins inside DaisyUI components */
-.mdx-content :is(.card-body, .alert) :is(h1, h2, h3, h4, p, ul, ol) {
+/* Reset mdx-content typography inside DaisyUI components */
+.mdx-content :is(.card-body, .alert) :is(h1, h2, h3, h4, p, ul, ol, li, strong, a) {
   margin-top: 0;
   margin-bottom: 0;
+  color: inherit;
+}
+
+.mdx-content :is(.card-body, .alert) :is(ul, ol) {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mdx-content :is(.card-body, .alert) ul {
+  list-style-type: disc;
+}
+
+.mdx-content :is(.card-body, .alert) ol {
+  list-style-type: decimal;
 }
 
 /* Engineering grid background utility */
