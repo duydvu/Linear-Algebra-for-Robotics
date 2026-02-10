@@ -119,8 +119,8 @@ $$\text{alignment} = \frac{\vec{sensor} \cdot \vec{to\_target}}{|\vec{sensor}||\
 
 If close to 1, sensor is well-aligned.
 
-### 3. Workspace Analysis
-Check if a point is within the robot's reachable workspace by comparing direction vectors.
+### 3. Field-of-View Check
+Determine if a target point is within a sensor's operational cone by comparing the direction to the target against the sensor's boresight vector. If the dot product (normalized) exceeds a threshold, the target is within the field of view.
 
 ### 4. Obstacle Avoidance
 Compute the component of velocity toward an obstacle:

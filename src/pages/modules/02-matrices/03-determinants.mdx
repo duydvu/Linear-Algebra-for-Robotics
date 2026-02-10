@@ -197,15 +197,11 @@ $$
 \mathbf{p}_{\text{desired}} = T(\mathbf{q}) \cdot \mathbf{p}_0
 $$
 
-If the transformation *T* is invertible:
+**Important**: $T(\mathbf{q})$ is a **nonlinear** function of the joint angles $\mathbf{q}$ — it involves sines and cosines. This means inverse kinematics is *not* a simple matrix inversion like solving $A\mathbf{x} = \mathbf{b}$. You cannot just compute $T^{-1}$ to find $\mathbf{q}$.
 
-$$
-\mathbf{q} = T^{-1}(\mathbf{p}_{\text{desired}})
-$$
+Instead, IK typically uses **iterative numerical methods**: linearize the problem using the **Jacobian** $J(\mathbf{q})$, solve $\Delta\mathbf{q} = J^{-1} \Delta\mathbf{p}$ for a small step, and repeat. This is where matrix inverses become essential — but only for the linearized (local) problem.
 
-This is **inverse kinematics** (IK) — finding joint angles that achieve a target pose.
-
-**Problem**: When the Jacobian is singular, we cannot invert it directly. Advanced techniques (pseudoinverse, numerical optimization) are needed.
+**Problem**: When the Jacobian is singular ($\det(J) = 0$), even the linearized step cannot be inverted. Advanced techniques (pseudoinverse, damped least squares, numerical optimization) are needed.
 
 </Example>
 

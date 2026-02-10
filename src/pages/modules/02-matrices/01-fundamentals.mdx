@@ -150,19 +150,19 @@ d_1 & 0 & 0 \\
 \end{bmatrix}
 $$
 
-<Example title="Joint Velocity Limits" robotics>
+<Example title="PD Controller Gain Matrix" robotics>
 
-A diagonal matrix can represent maximum joint velocities for a robot:
+A diagonal matrix naturally represents **proportional gains** in a PD controller for a 3-joint robot:
 
 $$
-\dot{\mathbf{q}}_{\text{max}} = \begin{bmatrix}
-90° & 0 & 0 \\
-0 & 120° & 0 \\
-0 & 0 & 180°
-\end{bmatrix} \text{ per second}
+K_p = \begin{bmatrix}
+50 & 0 & 0 \\
+0 & 40 & 0 \\
+0 & 0 & 30
+\end{bmatrix}
 $$
 
-Each joint has independent velocity limits (no coupling between joints).
+The control torque is computed as $\boldsymbol{\tau} = K_p \cdot \mathbf{e}$, where $\mathbf{e}$ is the joint angle error vector. Each diagonal entry scales the error for one joint independently — this is a genuine matrix-vector multiplication used in every robot controller.
 
 </Example>
 
