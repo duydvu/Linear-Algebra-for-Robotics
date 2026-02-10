@@ -123,13 +123,15 @@ When a robot's **Jacobian matrix** has determinant ≈ 0, the robot is in a **si
 
 <Example title="Singular Configuration" robotics>
 
-A 2-link planar robot arm is **singular** when:
+A 2-link planar robot arm is **singular** when the links are collinear:
 
-1. **Fully extended** (elbow angle θ₂ = 0° or 180°)
+1. **Fully extended** (elbow angle θ₂ = 0°)
+   - Links point in the same direction, arm is stretched out
    - Cannot move perpendicular to the arm direction
    - Jacobian determinant = 0
 
 2. **Fully folded** (elbow angle θ₂ = ±180°)
+   - Links point in opposite directions, arm folds back on itself
    - Workspace shrinks to a point
    - Jacobian determinant = 0
 

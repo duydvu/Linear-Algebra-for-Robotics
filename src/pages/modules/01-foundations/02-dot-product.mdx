@@ -55,13 +55,13 @@ The dot product measures **alignment**. Maximum when parallel, zero when perpend
 <Example title="Robot Arm Joint Angle" robotics={true}>
 A 2-link robot arm has:
 - Link 1 pointing at $\vec{L}_1 = (1, 0)$
-- Link 2 pointing at $\vec{L}_2 = (0.7, 0.7)$ (at 45° from link 1)
+- Link 2 pointing at $\vec{L}_2 = (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}) \approx (0.707, 0.707)$ (at 45° from link 1)
 
 To find the angle between them:
 
-$$\cos(\theta) = \frac{\vec{L}_1 \cdot \vec{L}_2}{|\vec{L}_1||\vec{L}_2|} = \frac{0.7}{1 \times 1} = 0.7$$
+$$\cos(\theta) = \frac{\vec{L}_1 \cdot \vec{L}_2}{|\vec{L}_1||\vec{L}_2|} = \frac{0.707}{1 \times 1} \approx 0.707$$
 
-$$\theta = \arccos(0.7) \approx 45°$$
+$$\theta = \arccos(0.707) \approx 45°$$
 </Example>
 
 ## Computing Angles

@@ -126,7 +126,7 @@ A valid 3D rotation matrix must satisfy two conditions:
 1. **Orthogonality**: $R^T R = I$ (columns are orthonormal)
 2. **Proper rotation**: $\det(R) = 1$ (not a reflection)
 
-A 3×3 rotation matrix has **9 elements** but only **3 degrees of freedom** (the six orthogonality constraints plus the determinant constraint remove 6 of the 9 free parameters).
+A 3×3 rotation matrix has **9 elements** but only **3 degrees of freedom**. The six independent orthogonality constraints ($R^T R = I$, a symmetric 3×3 equation with 6 independent entries) reduce the 9 elements to 3 free parameters. The determinant condition $\det(R) = 1$ further restricts to proper rotations, excluding reflections (where $\det = -1$).
 
 <Example title="End-Effector Orientation" robotics>
 
