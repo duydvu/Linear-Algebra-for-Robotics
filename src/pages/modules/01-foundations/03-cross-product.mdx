@@ -193,6 +193,21 @@ Many robotics libraries (ROS, PyBullet, etc.) have built-in cross product functi
 
 5. If $|\vec{a}| = 3$, $|\vec{b}| = 4$, and the angle between them is 30°, what is $|\vec{a} \times \vec{b}|$?
 
+<details>
+<summary>**Answers**</summary>
+
+1. $\vec{a} \times \vec{b} = (0 \cdot 0 - 0 \cdot 1,\; 0 \cdot 0 - 1 \cdot 0,\; 1 \cdot 1 - 0 \cdot 0) = **(0, 0, 1)**$ — the z-axis unit vector, as expected from the right-hand rule.
+
+2. $(1, 2, 3) \times (4, 5, 6) = (2 \cdot 6 - 3 \cdot 5,\; 3 \cdot 4 - 1 \cdot 6,\; 1 \cdot 5 - 2 \cdot 4) = (-3, 6, -3)$. Check: $(-3, 6, -3) \cdot (1, 2, 3) = -3 + 12 - 9 = 0$ ✓ and $(-3, 6, -3) \cdot (4, 5, 6) = -12 + 30 - 18 = 0$ ✓
+
+3. $\vec{\tau} = \vec{r} \times \vec{F} = (0, 0.2, 0) \times (5, 0, 0) = (0.2 \cdot 0 - 0 \cdot 0,\; 0 \cdot 5 - 0 \cdot 0,\; 0 \cdot 0 - 0.2 \cdot 5) = **(0, 0, -1)** \text{ N·m}$
+
+4. $\vec{n} = (1, 0, 0.1) \times (0, 1, 0.2) = (0 \cdot 0.2 - 0.1 \cdot 1,\; 0.1 \cdot 0 - 1 \cdot 0.2,\; 1 \cdot 1 - 0 \cdot 0) = (-0.1, -0.2, 1)$. $|\vec{n}| = \sqrt{0.01 + 0.04 + 1} \approx 1.025$. $\hat{n} \approx **(-0.098, -0.195, 0.976)**$
+
+5. $|\vec{a} \times \vec{b}| = |\vec{a}||\vec{b}|\sin\theta = 3 \cdot 4 \cdot \sin 30° = 12 \cdot 0.5 = **6**$
+
+</details>
+
 <Callout type="success" title="Module 1 Complete!">
 Congratulations! You've mastered vector fundamentals. You now understand:
 - Vector addition and scalar multiplication

@@ -76,6 +76,18 @@ where:
 
 Think of an airplane: roll banks the wings, pitch raises or lowers the nose, and yaw turns the heading.
 
+<Callout type="warning" title="Convention Mismatch — A Common Bug Source">
+
+There are **12** valid Euler angle conventions (6 Tait-Bryan like ZYX, and 6 proper Euler like ZXZ). Different software uses different ones:
+- **ROS**: RPY (XYZ fixed-axis, equivalent to ZYX body-axis)
+- **Unity**: ZXY
+- **Unreal Engine**: ZYX
+- **Aerospace**: Often ZYZ
+
+Convention mismatch is one of the **most common bugs** in robotics software. When using any library, always check its Euler angle convention in the documentation before combining rotations from different sources.
+
+</Callout>
+
 <Example title="Drone Orientation" robotics>
 
 A quadrotor drone uses roll, pitch, and yaw to describe its **attitude** (orientation in space):
@@ -127,6 +139,14 @@ A valid 3D rotation matrix must satisfy two conditions:
 2. **Proper rotation**: $\det(R) = 1$ (not a reflection)
 
 A 3×3 rotation matrix has **9 elements** but only **3 degrees of freedom**. The six independent orthogonality constraints ($R^T R = I$, a symmetric 3×3 equation with 6 independent entries) reduce the 9 elements to 3 free parameters. The determinant condition $\det(R) = 1$ further restricts to proper rotations, excluding reflections (where $\det = -1$).
+
+<Callout type="info" title="Numerical Drift in Practice">
+
+When rotation matrices are composed repeatedly (e.g., integrating gyroscope data in a control loop), floating-point rounding errors accumulate. The matrix gradually stops being orthogonal — $R^T R$ drifts away from $I$. Left unchecked, this causes the "rotation" to include shearing and scaling artifacts.
+
+**Solution**: Periodically re-orthogonalize the matrix using Gram-Schmidt orthogonalization or SVD projection back onto SO(3). Most robotics frameworks handle this automatically, but it's important to understand why.
+
+</Callout>
 
 <Example title="End-Effector Orientation" robotics>
 

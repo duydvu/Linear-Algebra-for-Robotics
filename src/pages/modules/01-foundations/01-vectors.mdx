@@ -32,6 +32,17 @@ $$\vec{v} = \begin{bmatrix} v_x \\ v_y \\ v_z \end{bmatrix}$$
 We'll use $(x, y)$ or $(x, y, z)$ notation for simplicity, but remember these represent column vectors in formal mathematics.
 </Callout>
 
+<Callout type="warning" title="Coordinate Frame Conventions">
+
+Throughout this course, we follow the standard **right-hand rule** for coordinate frames. In the interactive visualizations, axes are color-coded using the **RGB = XYZ** convention:
+- **X-axis** = <span style="color: red;">**Red**</span>
+- **Y-axis** = <span style="color: green;">**Green**</span>
+- **Z-axis** = <span style="color: #4488ff;">**Blue**</span>
+
+In 2D, Y points up. In 3D, Z points up (common in mobile robotics and manipulation). Be aware that different fields use different conventions — computer vision often has Z pointing forward, and some game engines use Y-up. Always check the convention when working with a new library or framework.
+
+</Callout>
+
 ## Vectors in Robotics
 
 In robotics, vectors are everywhere:
@@ -140,6 +151,19 @@ The unit vector $(0.6, 0.8)$ tells us the robot's heading, while the magnitude t
 3. A velocity vector is $(6, 8)$ m/s. What's its magnitude? What's the unit vector?
 
 4. If a robot moves with constant velocity $(2, 1)$ m/s, where will it be after 3 seconds if it starts at the origin?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $(1, 2) + (-3, 4) = (-2, 6)$
+
+2. $\vec{F}_{\text{net}} = (10, 5) + (-3, 8) = (7, 13)$ N
+
+3. $|\vec{v}| = \sqrt{6^2 + 8^2} = \sqrt{100} = 10$ m/s. Unit vector: $\hat{v} = \frac{1}{10}(6, 8) = (0.6, 0.8)$
+
+4. $\vec{p} = (0, 0) + (2, 1) \cdot 3 = (6, 3)$
+
+</details>
 
 <Callout type="success" title="Ready for More?">
 Now that you understand vector basics, the next lesson covers the **dot product** - a way to measure how much two vectors align with each other. This is crucial for computing angles in robot arms!
