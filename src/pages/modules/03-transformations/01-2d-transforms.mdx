@@ -1,0 +1,168 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: '2D Transformations'
+description: 'Understanding rotation, translation, scaling, and transformation composition in 2D'
+module: 3
+lesson: 1
+---
+
+import Transform2DViz from '../../../components/interactive/transformations/Transform2DViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# 2D Transformations
+
+Transformations map points from one position to another. In robotics, they describe how objects move through space — a robot's wheels rolling forward, its arm rotating, or a camera panning. We start with 2D to build intuition before tackling 3D.
+
+## Rotation in 2D
+
+A rotation by angle $\theta$ (counter-clockwise) is represented by the **2×2 rotation matrix**:
+
+$$
+R(\theta) = \begin{bmatrix}
+\cos\theta & -\sin\theta \\
+\sin\theta & \cos\theta
+\end{bmatrix}
+$$
+
+To rotate a point $\mathbf{p} = (x, y)$, multiply:
+
+$$
+\mathbf{p}' = R(\theta) \cdot \mathbf{p} = \begin{bmatrix}
+\cos\theta & -\sin\theta \\
+\sin\theta & \cos\theta
+\end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix}
+$$
+
+**Worked example:** Rotate the point $(1, 0)$ by 90° counter-clockwise:
+
+$$
+R(90°) \cdot \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix}
+0 & -1 \\
+1 & 0
+\end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+$$
+
+The point moves from the positive x-axis to the positive y-axis. ✓
+
+<Callout type="info" title="Properties of Rotation Matrices">
+
+- $R^T = R^{-1}$ (the transpose is the inverse — rotations are **orthogonal**)
+- $\det(R) = 1$ (rotation preserves area and orientation)
+- Rotations preserve lengths: $|R\mathbf{v}| = |\mathbf{v}|$
+- Composing two rotations: $R(\alpha) \cdot R(\beta) = R(\alpha + \beta)$
+
+</Callout>
+
+## Translation
+
+Translation shifts a point by a fixed offset:
+
+$$
+\mathbf{p}' = \mathbf{p} + \mathbf{t} = \begin{bmatrix} x + t_x \\ y + t_y \end{bmatrix}
+$$
+
+**The problem:** Translation is **not** a matrix multiplication on a 2D vector. You can't write $\mathbf{p}' = M \cdot \mathbf{p}$ for any 2×2 matrix $M$ that performs pure translation. This is a fundamental limitation that motivates **homogeneous coordinates** (Lesson 3), which elegantly combine rotation and translation into a single matrix.
+
+For now, we represent combined transformations as: apply rotation first, then add translation.
+
+## Scaling
+
+A scaling transformation stretches or compresses along each axis:
+
+$$
+S(s_x, s_y) = \begin{bmatrix}
+s_x & 0 \\
+0 & s_y
+\end{bmatrix}
+$$
+
+- **Uniform scaling** ($s_x = s_y$): preserves shape, changes size
+- **Non-uniform scaling** ($s_x \neq s_y$): distorts the shape
+
+<Callout type="warning" title="Scaling in Robotics">
+
+Pure scaling is rarely used in rigid-body robotics — robots don't change size! However, scaling appears in:
+- **Sensor calibration** (converting raw sensor values to physical units)
+- **Image processing** (resizing camera frames)
+- **Simulation** (adjusting model scale)
+
+The important transforms for robotics are **rotation** and **translation**.
+
+</Callout>
+
+## Transformation Composition
+
+Applying multiple transformations in sequence is equivalent to multiplying their matrices:
+
+$$
+T_{\text{total}} = T_n \cdot \ldots \cdot T_2 \cdot T_1
+$$
+
+**Critical insight: order matters!** Matrix multiplication is **not commutative**. The transformations are applied **right-to-left**: $T_1$ first, then $T_2$, and so on.
+
+### Order matters: an example
+
+Consider rotating 45° then translating by $(2, 0)$ versus translating first then rotating:
+
+**Rotate then translate:** The object spins in place, then slides to the right.
+
+**Translate then rotate:** The object slides to the right, then rotates — but the rotation happens around the *origin*, so the translated object swings in an arc!
+
+These give completely different results.
+
+<Callout type="warning" title="Composition Order">
+
+For $T = A \cdot B$, transformation $B$ is applied **first**. Read right-to-left. Getting this wrong is one of the most common mistakes in robotics programming.
+
+</Callout>
+
+<Example title="Mobile Robot Pose" robotics>
+
+A mobile robot on a warehouse floor has a **pose** described by $(x, y, \theta)$ — its position and heading angle. If the robot is at position $(2, 3)$ facing 30°:
+
+- The rotation $R(30°)$ describes the robot's orientation
+- The translation $(2, 3)$ describes its position
+
+Any sensor reading in the robot's **local frame** (e.g., "obstacle 1.5m ahead") can be converted to the **world frame** by applying the rotation then the translation. This is exactly what the interactive demo below lets you explore.
+
+</Example>
+
+## Interactive Visualization
+
+Adjust the rotation angle, translation, and scaling to see how an L-shaped object transforms. Toggle between individual transforms and their composition to understand how order affects the result.
+
+<Transform2DViz client:load />
+
+## Practice Problems
+
+1. What does the rotation matrix look like for $\theta = 180°$? What does it do geometrically?
+
+2. If you rotate the point $(3, 4)$ by 90° counter-clockwise, what is the result?
+
+3. You apply rotation by 45° then scaling by $(2, 1)$. Write the composite transformation matrix.
+
+<details>
+<summary>**Answers**</summary>
+
+1. $R(180°) = \begin{bmatrix} -1 & 0 \\ 0 & -1 \end{bmatrix}$. It flips every point through the origin (negates both coordinates). Geometrically, it's a 180° rotation, which is the same as a point reflection through the origin.
+
+2. $R(90°) \cdot \begin{bmatrix} 3 \\ 4 \end{bmatrix} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 3 \\ 4 \end{bmatrix} = \begin{bmatrix} -4 \\ 3 \end{bmatrix}$
+
+3. $S(2,1) \cdot R(45°) = \begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} \frac{\sqrt{2}}{2} & -\frac{\sqrt{2}}{2} \\ \frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2} \end{bmatrix} = \begin{bmatrix} \sqrt{2} & -\sqrt{2} \\ \frac{\sqrt{2}}{2} & \frac{\sqrt{2}}{2} \end{bmatrix} \approx \begin{bmatrix} 1.414 & -1.414 \\ 0.707 & 0.707 \end{bmatrix}$
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Rotation matrices** $R(\theta)$ rotate points counter-clockwise by angle $\theta$
+2. **Translation** cannot be represented as a 2×2 matrix multiplication (motivating homogeneous coordinates)
+3. **Scaling matrices** stretch/compress along axes — rarely used in rigid-body robotics
+4. **Transformation composition** = matrix multiplication, applied **right-to-left**
+5. **Order matters!** Rotate-then-translate gives different results from translate-then-rotate
+
+</Callout>
+
+## Next Steps
+
+In 2D, rotation has a single parameter (angle). In 3D, things get much more interesting — and complicated. Next, we'll explore 3D rotations, Euler angles, and the infamous **gimbal lock** problem.

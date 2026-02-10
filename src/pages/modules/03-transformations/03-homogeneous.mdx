@@ -1,0 +1,251 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Homogeneous Coordinates'
+description: 'Combining rotation and translation with homogeneous transformation matrices'
+module: 3
+lesson: 3
+---
+
+import HomogeneousViz from '../../../components/interactive/transformations/HomogeneousViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Homogeneous Coordinates
+
+In the previous lessons, rotation was a matrix multiplication and translation was an addition. Having two different operations is awkward — especially when you need to chain many transforms together. **Homogeneous coordinates** unify rotation and translation into a single matrix multiplication.
+
+## The Problem
+
+To rotate and then translate a 2D point:
+
+$$
+\mathbf{p}' = R(\theta) \cdot \mathbf{p} + \mathbf{t}
+$$
+
+This requires two separate operations. We can't represent translation as a 2×2 matrix multiply on a 2D vector. But what if we added an extra dimension?
+
+## 2D Homogeneous Transformations
+
+The key idea: represent a 2D point $(x, y)$ as a 3D vector $(x, y, 1)$ by appending a 1. Now we can build a **3×3 matrix** that handles both rotation and translation:
+
+$$
+T = \begin{bmatrix}
+\cos\theta & -\sin\theta & t_x \\
+\sin\theta & \cos\theta & t_y \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+Applying it:
+
+$$
+\begin{bmatrix} x' \\ y' \\ 1 \end{bmatrix} = T \cdot \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} = \begin{bmatrix}
+x\cos\theta - y\sin\theta + t_x \\
+x\sin\theta + y\cos\theta + t_y \\
+1
+\end{bmatrix}
+$$
+
+One multiplication does both rotation **and** translation!
+
+<Callout type="info" title="SE(2): Special Euclidean Group">
+
+The set of all 2D rigid-body transformations (rotation + translation, no scaling or shearing) forms the group **SE(2)**.
+
+- **Special**: determinant = +1 (no reflections)
+- **Euclidean**: distances are preserved
+- This is the mathematically precise way to describe robot motion in a plane
+
+</Callout>
+
+### Structure of the 3×3 Matrix
+
+$$
+T = \begin{bmatrix}
+R_{2 \times 2} & \mathbf{t}_{2 \times 1} \\
+\mathbf{0}_{1 \times 2} & 1
+\end{bmatrix} = \begin{bmatrix}
+\text{rotation} & \text{translation} \\
+0 \quad 0 & 1
+\end{bmatrix}
+$$
+
+The top-left 2×2 block is the rotation matrix. The top-right column is the translation vector. The bottom row is always $[0 \quad 0 \quad 1]$.
+
+## Transformation Composition in SE(2)
+
+The biggest advantage of homogeneous coordinates: **chaining transforms is just matrix multiplication**.
+
+$$
+T_{\text{total}} = T_2 \cdot T_1
+$$
+
+Apply $T_1$ first, then $T_2$ — same right-to-left rule as before.
+
+### Worked Example
+
+**Transform 1**: Rotate 90° and translate $(1, 0)$:
+
+$$
+T_1 = \begin{bmatrix}
+0 & -1 & 1 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+**Transform 2**: Rotate 0° and translate $(0, 2)$:
+
+$$
+T_2 = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 2 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+**Composite** $T_2 \cdot T_1$:
+
+$$
+T_2 \cdot T_1 = \begin{bmatrix}
+0 & -1 & 1 \\
+1 & 0 & 2 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+Applying to the origin $(0, 0, 1)^T$: the point ends up at $(1, 2)$. First $T_1$ rotates and translates to $(1, 0)$, then $T_2$ shifts it up by 2 to $(1, 2)$.
+
+## 3D Homogeneous Transformations
+
+The same idea extends to 3D using **4×4 matrices**:
+
+$$
+T = \begin{bmatrix}
+R_{3 \times 3} & \mathbf{t}_{3 \times 1} \\
+\mathbf{0}_{1 \times 3} & 1
+\end{bmatrix} = \begin{bmatrix}
+r_{11} & r_{12} & r_{13} & t_x \\
+r_{21} & r_{22} & r_{23} & t_y \\
+r_{31} & r_{32} & r_{33} & t_z \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+This is an element of **SE(3)** — the Special Euclidean group in 3D.
+
+### Efficient Inverse
+
+The inverse of a homogeneous transform has a special structure:
+
+$$
+T^{-1} = \begin{bmatrix}
+R^T & -R^T \mathbf{t} \\
+\mathbf{0} & 1
+\end{bmatrix}
+$$
+
+No need for general matrix inversion — just transpose $R$ and compute $-R^T \mathbf{t}$. This is much faster and more numerically stable.
+
+<Example title="Robot Coordinate Frames" robotics>
+
+Every link of a robot arm has its own **coordinate frame**. The transformation $T_{i-1,i}$ describes how frame $i$ relates to frame $i-1$:
+
+- The **rotation part** $R$ encodes the relative orientation between the two frames
+- The **translation part** $\mathbf{t}$ encodes the offset between their origins
+
+These 4×4 homogeneous transformation matrices encode both rotation and translation between consecutive joints in a single, elegant matrix.
+
+</Example>
+
+## Forward Kinematics: Chaining Transforms
+
+For a robot arm with $n$ joints, the end-effector pose relative to the base is:
+
+$$
+T_{0,n} = T_{0,1} \cdot T_{1,2} \cdot \ldots \cdot T_{n-1,n}
+$$
+
+Each $T_{i-1,i}$ depends on the joint angle $\theta_i$ and the link geometry. Multiply them all together to get the end-effector's position and orientation.
+
+<Example title="2-Link Planar Robot Arm" robotics>
+
+Consider a 2-link planar arm with joint angles $\theta_1$, $\theta_2$ and link lengths $L_1$, $L_2$.
+
+**Frame 0 → Frame 1** (rotate by $\theta_1$, extend by $L_1$):
+
+$$
+T_{0,1} = \begin{bmatrix}
+\cos\theta_1 & -\sin\theta_1 & L_1\cos\theta_1 \\
+\sin\theta_1 & \cos\theta_1 & L_1\sin\theta_1 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+**Frame 1 → Frame 2** (rotate by $\theta_2$, extend by $L_2$):
+
+$$
+T_{1,2} = \begin{bmatrix}
+\cos\theta_2 & -\sin\theta_2 & L_2\cos\theta_2 \\
+\sin\theta_2 & \cos\theta_2 & L_2\sin\theta_2 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+The end-effector position from $T_{0,2} = T_{0,1} \cdot T_{1,2}$:
+
+$$
+x = L_1\cos\theta_1 + L_2\cos(\theta_1 + \theta_2)
+$$
+$$
+y = L_1\sin\theta_1 + L_2\sin(\theta_1 + \theta_2)
+$$
+
+This is **forward kinematics** — computing where the end-effector is from joint angles. Try it in the interactive demo below!
+
+</Example>
+
+## Inverse Transforms
+
+The inverse $T^{-1}$ "undoes" a transformation. If $T$ converts from frame A to frame B, then $T^{-1}$ converts from B back to A.
+
+**Application:** A robot's camera sees an object in its local frame. To find the object's position in the world frame, apply the camera's transformation. To go the other way (world → camera), apply the inverse.
+
+## Interactive Visualization
+
+Explore a 2-link planar robot arm. Adjust joint angles and link lengths to see how the homogeneous transformation matrices chain together. Each joint's coordinate frame is shown, and the matrices update in real-time.
+
+<HomogeneousViz client:load />
+
+## Practice Problems
+
+1. Compute the 3×3 homogeneous transform for a rotation by 90° and translation $(2, 3)$.
+
+2. Given $T_1$ = rotate 45° with translation $(1, 0)$ and $T_2$ = rotate −45° with translation $(0, 1)$, where does the origin $(0, 0)$ end up after applying $T_2 \cdot T_1$?
+
+3. For a 2-link robot with $L_1 = L_2 = 1$, what joint angles $(\theta_1, \theta_2)$ reach the point $(1, 1)$?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $T = \begin{bmatrix} 0 & -1 & 2 \\ 1 & 0 & 3 \\ 0 & 0 & 1 \end{bmatrix}$
+
+2. First compute $T_1 \cdot (0, 0, 1)^T$: the origin maps to $(1, 0)$ (the translation part of $T_1$). Then compute $T_2 \cdot (1, 0, 1)^T$: $T_2$ rotates by −45° and translates by $(0, 1)$. The result is $(1 \cdot \cos(-45°) + 0, 1 \cdot \sin(-45°) + 1 + 0) = (\frac{\sqrt{2}}{2}, 1 - \frac{\sqrt{2}}{2}) \approx (0.707, 0.293)$.
+
+3. The end-effector must satisfy $x = \cos\theta_1 + \cos(\theta_1 + \theta_2) = 1$ and $y = \sin\theta_1 + \sin(\theta_1 + \theta_2) = 1$. One solution: $\theta_1 = 90°$, $\theta_2 = -90°$ gives $(0 + 1, 1 + 0) = (1, 1)$. ✓ Another solution: $\theta_1 \approx 0°$, $\theta_2 \approx 90°$ gives $(1 + 0, 0 + 1) = (1, 1)$. ✓
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Homogeneous coordinates** unify rotation and translation into a single matrix multiplication
+2. In 2D: 3×3 matrices in **SE(2)**; in 3D: 4×4 matrices in **SE(3)**
+3. **Chaining transforms** = matrix multiplication: $T_{0,n} = T_{0,1} \cdot T_{1,2} \cdot \ldots \cdot T_{n-1,n}$
+4. **Efficient inverse**: $T^{-1}$ uses $R^T$ and $-R^T\mathbf{t}$ (no general matrix inversion needed)
+5. This is the mathematical foundation of **forward kinematics** — the basis of all robot motion
+
+</Callout>
+
+## Next Steps
+
+You now have the mathematical tools for robot kinematics! In **Module 4**, we'll explore eigenvalues and eigenvectors, coordinate frames in more depth, and alternative rotation representations like quaternions that avoid gimbal lock.

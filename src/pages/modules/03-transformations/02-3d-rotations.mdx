@@ -1,0 +1,187 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: '3D Rotations'
+description: 'Exploring 3D rotation matrices, Euler angles, and gimbal lock'
+module: 3
+lesson: 2
+---
+
+import Rotation3DViz from '../../../components/interactive/transformations/Rotation3DViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# 3D Rotations
+
+In 3D, rotation is far richer than in 2D. Instead of a single angle, we need to describe orientation around **three axes**. This lesson covers the fundamental rotation matrices and the Euler angle representation — along with its infamous limitation.
+
+## Elementary Rotation Matrices
+
+### Rotation around X (Roll)
+
+$$
+R_x(\theta) = \begin{bmatrix}
+1 & 0 & 0 \\
+0 & \cos\theta & -\sin\theta \\
+0 & \sin\theta & \cos\theta
+\end{bmatrix}
+$$
+
+The x-axis stays fixed; the y-z plane rotates.
+
+### Rotation around Y (Pitch)
+
+$$
+R_y(\theta) = \begin{bmatrix}
+\cos\theta & 0 & \sin\theta \\
+0 & 1 & 0 \\
+-\sin\theta & 0 & \cos\theta
+\end{bmatrix}
+$$
+
+The y-axis stays fixed; the x-z plane rotates.
+
+### Rotation around Z (Yaw)
+
+$$
+R_z(\theta) = \begin{bmatrix}
+\cos\theta & -\sin\theta & 0 \\
+\sin\theta & \cos\theta & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+The z-axis stays fixed; the x-y plane rotates. Notice this is the 2D rotation matrix embedded in 3D.
+
+<Callout type="info" title="Properties of 3D Rotation Matrices">
+
+- $R^T = R^{-1}$ (orthogonal — same as 2D)
+- $\det(R) = 1$ (proper rotation, not reflection)
+- Preserves lengths and angles
+- The set of all 3×3 rotation matrices forms the **Special Orthogonal group SO(3)**
+
+</Callout>
+
+## Euler Angles
+
+Any 3D rotation can be decomposed into **three sequential rotations** around the coordinate axes. The most common convention in robotics is **ZYX (yaw-pitch-roll)**:
+
+$$
+R = R_z(\psi) \cdot R_y(\phi) \cdot R_x(\theta)
+$$
+
+where:
+- **Roll** ($\theta$): rotation around X — tilting sideways
+- **Pitch** ($\phi$): rotation around Y — tilting forward/backward
+- **Yaw** ($\psi$): rotation around Z — turning left/right
+
+Think of an airplane: roll banks the wings, pitch raises or lowers the nose, and yaw turns the heading.
+
+<Example title="Drone Orientation" robotics>
+
+A quadrotor drone uses roll, pitch, and yaw to describe its **attitude** (orientation in space):
+
+- **Roll** tilts the drone sideways → moves left/right
+- **Pitch** tilts the drone forward/backward → moves forward/backward
+- **Yaw** rotates the drone's heading → turns in place
+
+The flight controller reads gyroscope and accelerometer data from the IMU (Inertial Measurement Unit) and computes the rotation matrix to determine the drone's current orientation. The control loop then adjusts motor speeds to achieve the desired attitude.
+
+</Example>
+
+## Gimbal Lock
+
+Euler angles have a critical limitation called **gimbal lock**. When the pitch angle reaches $\pm 90°$, the yaw and roll axes become aligned, and **one degree of freedom is lost**.
+
+### What happens mathematically
+
+When pitch $= 90°$, the rotation matrix $R_y(90°)$ maps the x-axis onto the z-axis. Now both $R_z$ (yaw) and $R_x$ (roll) rotate around the *same* axis — they become redundant. Only their sum or difference matters:
+
+$$
+R_z(\psi) \cdot R_y(90°) \cdot R_x(\theta) = \begin{bmatrix}
+0 & \sin(\theta - \psi) & \cos(\theta - \psi) \\
+0 & \cos(\theta - \psi) & -\sin(\theta - \psi) \\
+-1 & 0 & 0
+\end{bmatrix}
+$$
+
+Notice that only $\theta - \psi$ appears — we cannot independently control yaw and roll. We've lost a degree of freedom.
+
+<Callout type="warning" title="Gimbal Lock in Practice">
+
+Gimbal lock caused real problems in the **Apollo program's** inertial measurement unit, which used physical gimbals. When two gimbal rings aligned, the platform could tumble unpredictably.
+
+In modern robotics, gimbal lock can cause:
+- **Sudden jumps** in computed orientation
+- **Numerical instability** in control algorithms
+- **Singularities** in path planning
+
+This is why many robotics systems use **quaternions** (covered in Module 4) instead of Euler angles for orientation representation.
+
+</Callout>
+
+## Rotation Matrix Properties
+
+A valid 3D rotation matrix must satisfy two conditions:
+
+1. **Orthogonality**: $R^T R = I$ (columns are orthonormal)
+2. **Proper rotation**: $\det(R) = 1$ (not a reflection)
+
+A 3×3 rotation matrix has **9 elements** but only **3 degrees of freedom** (the six orthogonality constraints plus the determinant constraint remove 6 of the 9 free parameters).
+
+<Example title="End-Effector Orientation" robotics>
+
+A 6-DOF robot arm's end-effector orientation is described by a 3×3 rotation matrix. When programming a **pick-and-place task**, you specify:
+
+1. **Position**: where the gripper should be $(x, y, z)$
+2. **Orientation**: how the gripper should be rotated (rotation matrix $R$)
+
+For example, to pick up a horizontally-lying bolt, the gripper might need to approach from above with a specific wrist rotation. The robot's inverse kinematics solver must find joint angles that achieve both the target position *and* the target rotation matrix.
+
+</Example>
+
+## Composing 3D Rotations
+
+The same right-to-left rule applies: $R_{\text{total}} = R_3 \cdot R_2 \cdot R_1$ applies $R_1$ first, then $R_2$, then $R_3$.
+
+3D rotations are **not commutative**: $R_x(90°) \cdot R_z(90°) \neq R_z(90°) \cdot R_x(90°)$.
+
+Try it yourself: take a book, rotate it 90° around the x-axis (tilt forward) then 90° around the z-axis (turn left). Now start over and do z first, then x. The book ends up in a completely different orientation!
+
+## Interactive Visualization
+
+Adjust the Euler angles to see how a 3D coordinate frame rotates. The rotation matrix updates in real-time. Try setting pitch to ±90° to observe gimbal lock — you'll see the warning appear and notice that changing roll and yaw produces the same rotation.
+
+<Rotation3DViz client:load />
+
+## Practice Problems
+
+1. What is the rotation matrix for a 90° rotation around the Z axis?
+
+2. If you apply $R_x(90°)$ then $R_z(90°)$, what direction does the original Y-axis unit vector $(0, 1, 0)$ end up pointing?
+
+3. At what pitch angle(s) does gimbal lock occur with the ZYX Euler convention?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $R_z(90°) = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix}$
+
+2. First apply $R_x(90°)$: $(0, 1, 0) \to (0, 0, 1)$ (y-axis maps to z-axis). Then apply $R_z(90°)$: $(0, 0, 1) \to (0, 0, 1)$ (z-axis is unchanged by z-rotation). So the result is $(0, 0, 1)$ — the original y-axis ends up pointing along z.
+
+3. Gimbal lock occurs at pitch $= \pm 90°$ ($\pm \pi/2$ radians). At these angles, the yaw and roll axes align, and one degree of freedom is lost.
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Elementary rotations** $R_x$, $R_y$, $R_z$ each rotate around one coordinate axis
+2. **Euler angles** (ZYX convention) decompose any rotation into yaw, pitch, roll
+3. **Gimbal lock** occurs when pitch = ±90°, causing loss of one degree of freedom
+4. Rotation matrices are **orthogonal** with $\det(R) = 1$, having only 3 DOF despite 9 elements
+5. 3D rotation composition is **non-commutative** — order matters even more than in 2D
+
+</Callout>
+
+## Next Steps
+
+We can now rotate objects in 3D, but how do we combine rotation and translation into a single operation? **Homogeneous coordinates** solve this elegantly — and they're the standard representation used in all robotics software.
