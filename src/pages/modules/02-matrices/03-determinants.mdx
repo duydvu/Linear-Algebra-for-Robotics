@@ -189,6 +189,68 @@ $$
 3. (*A*<sup>T</sup>)<sup>-1</sup> = (*A*<sup>-1</sup>)<sup>T</sup>
 4. det(*A*<sup>-1</sup>) = 1 / det(*A*)
 
+## Solving Linear Systems
+
+The most important application of matrix inverses is solving equations of the form:
+
+$$
+A\mathbf{x} = \mathbf{b}
+$$
+
+where *A* is a known matrix, **b** is a known vector, and **x** is the unknown we want to find.
+
+### Solution via Inverse
+
+If *A* is invertible (det(*A*) ≠ 0), multiply both sides by *A*<sup>-1</sup>:
+
+$$
+\mathbf{x} = A^{-1}\mathbf{b}
+$$
+
+**Example**: Solve for **x**:
+
+$$
+\begin{bmatrix} 2 & 1 \\ 1 & 3 \end{bmatrix} \mathbf{x} = \begin{bmatrix} 5 \\ 10 \end{bmatrix}
+$$
+
+det(*A*) = 6 − 1 = 5 ≠ 0, so the inverse exists:
+
+$$
+\mathbf{x} = \frac{1}{5}\begin{bmatrix} 3 & -1 \\ -1 & 2 \end{bmatrix} \begin{bmatrix} 5 \\ 10 \end{bmatrix} = \frac{1}{5}\begin{bmatrix} 5 \\ 15 \end{bmatrix} = \begin{bmatrix} 1 \\ 3 \end{bmatrix}
+$$
+
+### When It Fails
+
+If det(*A*) = 0, the system has **no unique solution**:
+- **No solution**: The equations are inconsistent (they contradict each other)
+- **Infinitely many solutions**: The equations are redundant (one is a combination of others)
+
+This connects directly to **singular matrices** — when the columns of *A* are linearly dependent, the transformation collapses a dimension, and you cannot uniquely recover **x** from **b**.
+
+<Example title="Static Force Analysis" robotics>
+
+A robot's Jacobian *J* relates joint torques $\boldsymbol{\tau}$ to end-effector forces **F**:
+
+$$
+\boldsymbol{\tau} = J^T \mathbf{F}
+$$
+
+To find what end-effector force results from given joint torques, solve:
+
+$$
+\mathbf{F} = (J^T)^{-1} \boldsymbol{\tau}
+$$
+
+This only works when *J* is invertible. At a singularity (det(*J*) = 0), certain end-effector forces become impossible to generate — no combination of joint torques can produce them.
+
+</Example>
+
+<Callout type="info" title="In Practice">
+
+For large systems, computing *A*<sup>-1</sup> explicitly is inefficient. Libraries use methods like **LU decomposition** to solve *A***x** = **b** directly without forming the inverse. But the fundamental question remains the same: **is det(*A*) ≠ 0?** If yes, a unique solution exists.
+
+</Callout>
+
 <Example title="Inverse Kinematics" robotics>
 
 In robotics, we often need to **solve for joint angles** given a desired end-effector position:

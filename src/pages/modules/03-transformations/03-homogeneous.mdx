@@ -205,6 +205,63 @@ This is **forward kinematics** — computing where the end-effector is from join
 
 </Example>
 
+## Denavit-Hartenberg (DH) Convention
+
+The 2-link example above manually constructed each transform. For a 6-DOF industrial arm, we need a **systematic method**. The Denavit-Hartenberg convention provides exactly this — a standard way to describe any serial robot with just **4 numbers per joint**.
+
+### The Four DH Parameters
+
+Each joint *i* in a serial manipulator is fully described by:
+
+| Parameter | Symbol | Meaning |
+|-----------|--------|---------|
+| Joint angle | $\theta_i$ | Rotation about the z-axis (variable for **revolute** joints) |
+| Link offset | $d_i$ | Translation along the z-axis (variable for **prismatic** joints) |
+| Link length | $a_i$ | Translation along the x-axis |
+| Link twist | $\alpha_i$ | Rotation about the x-axis |
+
+### The DH Transformation Matrix
+
+These four parameters combine into a single 4×4 homogeneous transform:
+
+$$
+T_i = \begin{bmatrix}
+\cos\theta_i & -\sin\theta_i\cos\alpha_i & \sin\theta_i\sin\alpha_i & a_i\cos\theta_i \\
+\sin\theta_i & \cos\theta_i\cos\alpha_i & -\cos\theta_i\sin\alpha_i & a_i\sin\theta_i \\
+0 & \sin\alpha_i & \cos\alpha_i & d_i \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+The full forward kinematics is then: $T_{0,n} = T_1 \cdot T_2 \cdot \ldots \cdot T_n$
+
+### Example: 2-Link Planar Arm as a DH Table
+
+The same arm from above can be described with a DH parameter table:
+
+| Joint | $\theta$ | $d$ | $a$ | $\alpha$ |
+|-------|----------|-----|-----|----------|
+| 1 | $\theta_1$ | 0 | $L_1$ | 0 |
+| 2 | $\theta_2$ | 0 | $L_2$ | 0 |
+
+Since all joints are revolute and planar, only $\theta$ varies and the twist $\alpha = 0$. Plugging into the DH formula with $\alpha = 0$ and $d = 0$ gives exactly the transforms we derived manually — the DH convention just provides a systematic way to arrive at them.
+
+<Callout type="info" title="DH in Code">
+
+The math library provides `dhTransform(a, alpha, d, theta)` which implements the DH matrix above. For the 2-link arm: `dhTransform(L1, 0, 0, theta1)` produces the same $T_{0,1}$ we built by hand.
+
+Note: There are two DH conventions — **Standard** (used here, from Denavit & Hartenberg) and **Modified** (from Craig's textbook), which places coordinate frames differently. Always check which convention your library uses.
+
+</Callout>
+
+<Callout type="warning" title="Common DH Pitfalls">
+
+- **Parameter order varies between textbooks**: some use ($\theta$, $d$, $a$, $\alpha$), others use ($a$, $\alpha$, $d$, $\theta$). Always check.
+- **Standard vs. Modified DH**: These produce *different* transforms for the same robot. Mixing them is a frequent source of bugs.
+- **Frame assignment**: Choosing where to place each coordinate frame has rules that can be subtle for complex robots. This is covered in detail in Module 5.
+
+</Callout>
+
 ## Inverse Transforms
 
 The inverse $T^{-1}$ "undoes" a transformation. If $T$ converts from frame A to frame B, then $T^{-1}$ converts from B back to A.

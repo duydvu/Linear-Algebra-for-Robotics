@@ -166,6 +166,48 @@ The control torque is computed as $\boldsymbol{\tau} = K_p \cdot \mathbf{e}$, wh
 
 </Example>
 
+## Linear Independence and Rank
+
+Two concepts that are essential for understanding why matrices sometimes fail to be invertible.
+
+### Linear Independence
+
+A set of vectors is **linearly independent** if no vector in the set can be written as a combination of the others. Intuitively, each vector adds a genuinely **new direction**.
+
+**Independent** — each vector points in a distinct direction:
+
+$$
+\vec{v}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}, \quad \vec{v}_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+$$
+
+**Dependent** — one vector is just a scaled version of the other:
+
+$$
+\vec{v}_1 = \begin{bmatrix} 2 \\ 4 \end{bmatrix}, \quad \vec{v}_2 = \begin{bmatrix} 1 \\ 2 \end{bmatrix} \quad (\vec{v}_1 = 2\vec{v}_2)
+$$
+
+When vectors are dependent, they span fewer dimensions than you'd expect. Two dependent 2D vectors only cover a line, not the full plane.
+
+### Rank
+
+The **rank** of a matrix is the number of linearly independent columns (equivalently, rows). A matrix is **full rank** when all its columns are independent.
+
+For an *n*×*n* square matrix:
+- **Full rank** (rank = *n*): The matrix is invertible, det ≠ 0
+- **Rank-deficient** (rank < *n*): The matrix is singular, det = 0, columns are dependent
+
+This is *why* singular matrices collapse space — dependent columns mean redundant directions, so the transformation squashes at least one dimension away.
+
+<Callout type="info" title="Rank in Robotics">
+
+The **Jacobian matrix** of a robot maps joint velocities to end-effector velocities. Its rank tells you how many **independent directions** the end-effector can move:
+- **Full rank**: The robot can move in all directions — full dexterity
+- **Rank drops**: The robot loses control in one or more directions — this is a **singularity**
+
+When we say "the Jacobian is singular," we mean its columns have become linearly dependent, and the rank has dropped below its maximum value.
+
+</Callout>
+
 ## Interactive Explorer
 
 Try the basic matrix operations below. Adjust the matrix elements and see how operations work in real-time.
