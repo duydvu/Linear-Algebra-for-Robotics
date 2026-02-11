@@ -1,0 +1,371 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Rotation Representations'
+description: 'Axis-angle, rotation vectors, and quaternions — overcoming Euler angle limitations'
+module: 4
+lesson: 3
+---
+
+import QuaternionViz from '../../../components/interactive/advanced/QuaternionViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Rotation Representations
+
+In Module 3, we used **Euler angles** and **rotation matrices** to represent orientation. Both have significant drawbacks: Euler angles suffer from gimbal lock, and rotation matrices use 9 numbers with 6 redundant constraints. This lesson introduces representations that solve these problems — **axis-angle**, **rotation vectors**, and **quaternions** — the workhorses of modern robotics and 3D graphics.
+
+## Why Euler Angles Aren't Enough
+
+Quick recap of the problems (from Module 3):
+
+1. **Gimbal lock**: When pitch = $\pm 90°$, roll and yaw become coupled — one degree of freedom is lost. The robot can still physically reach all orientations, but the mathematical representation becomes singular.
+
+2. **Non-unique representation**: Multiple Euler angle triples can represent the same rotation (e.g., $(0°, 0°, 90°)$ and $(90°, 0°, 0°)$ with different conventions).
+
+3. **Interpolation artifacts**: Linearly interpolating between two sets of Euler angles doesn't produce a smooth, shortest-path rotation. The intermediate orientations can take bizarre detours.
+
+4. **12 conventions**: The lack of a single standard means convention mismatches are inevitable in multi-library systems.
+
+We need representations that are **singularity-free**, **unique** (or nearly so), and **interpolation-friendly**.
+
+## Axis-Angle Representation
+
+**Euler's rotation theorem** states that any 3D rotation can be described as a single rotation by angle $\theta$ about a fixed axis $\hat{k}$:
+
+$$
+(\hat{k}, \theta) \quad \text{where} \quad \hat{k} = \begin{bmatrix} k_x \\ k_y \\ k_z \end{bmatrix}, \quad |\hat{k}| = 1, \quad \theta \in [0, \pi]
+$$
+
+This is the rotation's **axis-angle** form. It uses only **4 numbers** (3 for the unit axis + 1 for the angle), compared to 9 for a rotation matrix.
+
+<Callout type="info" title="Connection to Eigenvalues">
+
+From Lesson 1: a 3D rotation matrix always has eigenvalue $\lambda = 1$, and the corresponding eigenvector **is** the rotation axis $\hat{k}$. The rotation angle $\theta$ can be recovered from the trace:
+
+$$
+\theta = \arccos\left(\frac{\text{tr}(R) - 1}{2}\right)
+$$
+
+Axis-angle is the eigenvalue decomposition of rotations made explicit.
+
+</Callout>
+
+### Axis-Angle to Rotation Matrix: Rodrigues' Formula
+
+Given axis $\hat{k}$ and angle $\theta$, the rotation matrix is:
+
+$$
+R = I + \sin\theta \, [\hat{k}]_\times + (1 - \cos\theta) \, [\hat{k}]_\times^2
+$$
+
+where $[\hat{k}]_\times$ is the **skew-symmetric matrix** of $\hat{k}$:
+
+$$
+[\hat{k}]_\times = \begin{bmatrix} 0 & -k_z & k_y \\ k_z & 0 & -k_x \\ -k_y & k_x & 0 \end{bmatrix}
+$$
+
+This is **Rodrigues' rotation formula** — one of the most important formulas in 3D geometry.
+
+<Example title="Rotation About Z-Axis" robotics>
+
+Verify Rodrigues' formula for a rotation by $\theta$ about $\hat{k} = (0, 0, 1)$ (the z-axis):
+
+$$
+[\hat{k}]_\times = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}, \quad
+[\hat{k}]_\times^2 = \begin{bmatrix} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & 0 \end{bmatrix}
+$$
+
+$$
+R = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} + \sin\theta\begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} + (1 - \cos\theta)\begin{bmatrix} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & 0 \end{bmatrix}
+$$
+
+$$
+= \begin{bmatrix} \cos\theta & -\sin\theta & 0 \\ \sin\theta & \cos\theta & 0 \\ 0 & 0 & 1 \end{bmatrix} = R_z(\theta) \; \checkmark
+$$
+
+</Example>
+
+### Rotation Matrix to Axis-Angle
+
+Given a rotation matrix $R$:
+
+1. **Angle**: $\theta = \arccos\left(\frac{\text{tr}(R) - 1}{2}\right)$
+
+2. **Axis** (when $\theta \neq 0, \pi$): $\hat{k} = \frac{1}{2\sin\theta}\begin{bmatrix} R_{32} - R_{23} \\ R_{13} - R_{31} \\ R_{21} - R_{12} \end{bmatrix}$
+
+<Callout type="warning" title="Degenerate Cases">
+
+- When $\theta = 0$: the rotation is the identity. The axis is **undefined** (any axis works for a zero rotation).
+- When $\theta = \pi$: $\sin\theta = 0$, so the formula above fails. Instead, extract the axis from the eigenvector of $R$ corresponding to $\lambda = 1$, or from the symmetric part: $\hat{k}$ is proportional to any nonzero column of $R + I$.
+
+These edge cases matter in code — always handle them explicitly.
+
+</Callout>
+
+## Rotation Vectors
+
+The **rotation vector** $\vec{\omega} = \theta \hat{k}$ packs the axis and angle into a single 3D vector:
+
+$$
+\vec{\omega} = \theta \hat{k} \in \mathbb{R}^3
+$$
+
+- The **direction** of $\vec{\omega}$ is the rotation axis
+- The **magnitude** $|\vec{\omega}|$ is the rotation angle
+
+This is the most compact non-redundant representation — just **3 numbers** for 3 DOF. It's widely used in optimization and Lie group theory (where it parameterizes the tangent space of SO(3), called $\mathfrak{so}(3)$).
+
+The mapping from rotation vectors to rotation matrices is the **matrix exponential**:
+
+$$
+R = \exp([\vec{\omega}]_\times)
+$$
+
+and Rodrigues' formula is precisely the closed-form evaluation of this exponential.
+
+The inverse mapping (rotation matrix to rotation vector) is the **matrix logarithm**:
+
+$$
+[\vec{\omega}]_\times = \log(R)
+$$
+
+<Example title="Small-Angle Approximation" robotics>
+
+For small rotations ($\theta \approx 0$), Rodrigues' formula simplifies dramatically:
+
+$$
+R \approx I + [\vec{\omega}]_\times
+$$
+
+This linearization is used constantly in robotics:
+- **EKF-based SLAM**: Orientation updates use small rotation vectors as the error state
+- **Visual odometry**: Frame-to-frame rotation changes are small
+- **Jacobian computation**: Relating joint velocities to angular velocities
+
+The error is $O(\theta^2)$, so for $\theta < 5°$ ($\approx 0.087$ rad), the approximation error is under 0.4%.
+
+</Example>
+
+## Quaternions
+
+Quaternions are the gold standard for rotation representation in robotics, aerospace, and computer graphics. They use **4 numbers**, are **singularity-free**, and enable efficient **composition** and **interpolation**.
+
+### Definition
+
+A **quaternion** extends complex numbers with three imaginary units $i, j, k$:
+
+$$
+q = w + xi + yj + zk
+$$
+
+or equivalently, as a scalar-vector pair:
+
+$$
+q = (w, \vec{v}) \quad \text{where} \quad w \in \mathbb{R}, \; \vec{v} = \begin{bmatrix} x \\ y \\ z \end{bmatrix} \in \mathbb{R}^3
+$$
+
+The imaginary units satisfy Hamilton's rules: $i^2 = j^2 = k^2 = ijk = -1$.
+
+### Unit Quaternions and Rotations
+
+A **unit quaternion** ($|q| = \sqrt{w^2 + x^2 + y^2 + z^2} = 1$) represents a rotation. Given axis $\hat{k}$ and angle $\theta$:
+
+$$
+q = \left(\cos\frac{\theta}{2}, \; \sin\frac{\theta}{2} \, \hat{k}\right)
+$$
+
+Note the **half angle** — this is key to how quaternions work. It means that a 360° rotation gives $q = (-1, \vec{0})$, not the identity $(1, \vec{0})$. In fact, $q$ and $-q$ represent the **same rotation** (double cover of SO(3)).
+
+<Callout type="info" title="Why Half Angles?">
+
+The half-angle appears because quaternions provide a **double cover** of the rotation group SO(3). Both $q$ and $-q$ map to the same rotation matrix. This double cover is what makes quaternions topologically able to avoid singularities — the unit quaternion sphere $S^3$ is simply connected, unlike SO(3) which has a nontrivial fundamental group.
+
+In practice, this means: when comparing or interpolating quaternions, always check if $q_1 \cdot q_2 < 0$ and negate one if needed to ensure you take the shorter path.
+
+</Callout>
+
+### Rotating a Vector with a Quaternion
+
+To rotate a vector $\vec{p}$ by the rotation represented by unit quaternion $q$:
+
+1. Encode the vector as a pure quaternion: $p = (0, \vec{p})$
+2. Compute: $p' = q \, p \, q^*$
+3. Extract the vector part of $p'$
+
+where $q^* = (w, -\vec{v})$ is the **conjugate** (which equals the inverse for unit quaternions).
+
+### Quaternion Multiplication
+
+Two quaternions multiply as:
+
+$$
+q_1 \otimes q_2 = (w_1 w_2 - \vec{v}_1 \cdot \vec{v}_2, \; w_1\vec{v}_2 + w_2\vec{v}_1 + \vec{v}_1 \times \vec{v}_2)
+$$
+
+**Composing rotations** is just quaternion multiplication: if $q_1$ rotates and then $q_2$ rotates, the combined rotation is $q_2 \otimes q_1$.
+
+This is much cheaper than multiplying two $3 \times 3$ matrices (16 multiplications + 12 additions for quaternions vs. 27 multiplications + 18 additions for matrices).
+
+### Quaternion to Rotation Matrix
+
+$$
+R = \begin{bmatrix}
+1 - 2(y^2 + z^2) & 2(xy - wz) & 2(xz + wy) \\
+2(xy + wz) & 1 - 2(x^2 + z^2) & 2(yz - wx) \\
+2(xz - wy) & 2(yz + wx) & 1 - 2(x^2 + y^2)
+\end{bmatrix}
+$$
+
+### Rotation Matrix to Quaternion
+
+Given $R$, the quaternion can be extracted via the **Shepperd method** (numerically stable):
+
+1. Compute $w = \frac{1}{2}\sqrt{1 + R_{11} + R_{22} + R_{33}}$
+2. If $w > \epsilon$: $x = \frac{R_{32}-R_{23}}{4w}$, $y = \frac{R_{13}-R_{31}}{4w}$, $z = \frac{R_{21}-R_{12}}{4w}$
+3. If $w \approx 0$: use alternative formulas based on the largest diagonal element
+
+<Callout type="warning" title="Quaternion Normalization">
+
+Like rotation matrices, quaternions accumulate numerical drift when composed repeatedly. Periodically re-normalize: $q \leftarrow q / |q|$. This is a simple division by the norm — much cheaper than re-orthogonalizing a $3 \times 3$ matrix.
+
+</Callout>
+
+<Example title="IMU Orientation Tracking" robotics>
+
+An IMU (Inertial Measurement Unit) outputs angular velocity $\vec{\omega}(t)$ at high frequency (e.g., 1000 Hz). To track orientation over time:
+
+**Update rule** (first-order integration):
+
+$$
+q(t + \Delta t) = q(t) \otimes \Delta q
+$$
+
+where $\Delta q = \left(\cos\frac{|\vec{\omega}|\Delta t}{2}, \; \sin\frac{|\vec{\omega}|\Delta t}{2} \, \frac{\vec{\omega}}{|\vec{\omega}|}\right)$
+
+This is done in quaternion space — no Euler angles, no gimbal lock, and the normalization step keeps the quaternion on the unit sphere. Madgwick and Mahony filters (standard IMU orientation filters) work entirely in quaternion representation.
+
+</Example>
+
+## SLERP — Spherical Linear Interpolation
+
+One of the most compelling reasons to use quaternions is **SLERP** (Spherical Linear intERPolation). Given two orientations $q_0$ and $q_1$, SLERP produces a smooth, constant-angular-velocity interpolation:
+
+$$
+\text{slerp}(q_0, q_1, t) = q_0 \frac{\sin((1-t)\Omega)}{\sin\Omega} + q_1 \frac{\sin(t\Omega)}{\sin\Omega}
+$$
+
+where $\Omega = \arccos(q_0 \cdot q_1)$ is the angle between the quaternions and $t \in [0, 1]$.
+
+Properties of SLERP:
+- **Constant angular velocity**: the rotation rate is uniform throughout the interpolation
+- **Shortest path**: it follows the great circle on the unit quaternion sphere (after ensuring $q_0 \cdot q_1 > 0$)
+- **Torque-minimal**: it minimizes the total angular acceleration
+
+<Example title="Robot Motion Planning" robotics>
+
+A pick-and-place robot needs to move its gripper from orientation $q_{\text{pick}}$ (pointing down to grasp) to $q_{\text{place}}$ (tilted to insert a peg). Using SLERP:
+
+```
+for t = 0 to 1 step 0.01:
+    q_target = slerp(q_pick, q_place, t)
+    send_orientation_command(q_target)
+```
+
+The result is a smooth, predictable rotation that:
+- Takes the shortest path (no unnecessary spinning)
+- Moves at constant angular velocity (no jerky accelerations)
+- Never hits gimbal lock (regardless of the start/end orientations)
+
+Compare this to interpolating Euler angles linearly, which can produce wobbly, non-shortest paths and may even fail entirely near gimbal lock configurations.
+
+</Example>
+
+<Callout type="info" title="SLERP Edge Cases">
+
+- When $\Omega \approx 0$ (quaternions nearly identical): SLERP degenerates. Use **linear interpolation** (LERP) + normalization instead: $q(t) = \text{normalize}((1-t)q_0 + t \, q_1)$.
+- When $q_0 \cdot q_1 < 0$: negate one quaternion before interpolating to ensure the shortest path (recall $q$ and $-q$ are the same rotation).
+
+</Callout>
+
+## Comparison of Representations
+
+| Representation | Parameters | Singularities | Composition | Interpolation | Use Case |
+|---|:---:|:---:|:---:|:---:|---|
+| Euler Angles | 3 | **Gimbal lock** | Slow (matrix rebuild) | Poor | Human-readable configs |
+| Rotation Matrix | 9 (6 constraints) | None | Matrix multiply | Difficult | Direct vector transformation |
+| Axis-Angle | 4 (1 constraint) | At $\theta = 0$ | Via Rodrigues | Non-trivial | Visualization, display |
+| Rotation Vector | 3 | At $\theta = \pi$ | Via exponential | Additive (small angles) | Optimization, Lie theory |
+| Quaternion | 4 (1 constraint) | None | Quaternion multiply | **SLERP** | **Industry standard** |
+
+<Callout type="info" title="Which Should You Use?">
+
+The practical answer: **use quaternions as your internal representation**, convert to/from other forms as needed:
+- Convert **from** Euler angles when reading human-authored configs
+- Convert **to** rotation matrices when applying transforms to points
+- Convert **to** axis-angle for visualization (showing the rotation axis and angle)
+- Use rotation vectors for optimization problems and error representation
+
+Every major robotics framework (ROS, Drake, MoveIt), game engine (Unity, Unreal), and physics simulator (Bullet, MuJoCo) uses quaternions internally.
+
+</Callout>
+
+## Conversions Summary
+
+### Axis-Angle $\leftrightarrow$ Quaternion
+
+**Axis-angle → Quaternion:**
+$$q = \left(\cos\frac{\theta}{2}, \; \sin\frac{\theta}{2} \, \hat{k}\right)$$
+
+**Quaternion → Axis-angle:**
+$$\theta = 2\arccos(w), \quad \hat{k} = \frac{\vec{v}}{|\vec{v}|}$$
+
+### Quaternion $\leftrightarrow$ Rotation Matrix
+
+Use the formulas in the "Quaternion to Rotation Matrix" and "Rotation Matrix to Quaternion" sections above.
+
+### Rotation Vector $\leftrightarrow$ Quaternion
+
+**Rotation vector → Quaternion**: extract $\theta = |\vec{\omega}|$ and $\hat{k} = \vec{\omega}/|\vec{\omega}|$, then apply axis-angle → quaternion.
+
+**Quaternion → Rotation vector**: extract axis-angle from quaternion, then $\vec{\omega} = \theta \hat{k}$.
+
+<QuaternionViz client:load />
+
+## Practice Problems
+
+1. Find the axis-angle representation of $R_z(90°)$ using the trace formula and axis extraction.
+
+2. Use Rodrigues' formula to compute the rotation matrix for a 180° rotation about axis $\hat{k} = \frac{1}{\sqrt{2}}(1, 1, 0)$.
+
+3. Convert the axis-angle pair $(\hat{k} = (0, 0, 1), \theta = 120°)$ to a unit quaternion.
+
+4. Compute $q_1 \otimes q_2$ where $q_1 = (\frac{\sqrt{2}}{2}, \frac{\sqrt{2}}{2}, 0, 0)$ and $q_2 = (\frac{\sqrt{2}}{2}, 0, \frac{\sqrt{2}}{2}, 0)$.
+
+5. Two orientations are represented as quaternions: $q_0 = (1, 0, 0, 0)$ (identity) and $q_1 = (0, 0, 0, 1)$ (180° about z). What is $\text{slerp}(q_0, q_1, 0.5)$?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $\text{tr}(R_z(90°)) = \cos 90° + \cos 90° + 1 = 0 + 0 + 1 = 1$. $\theta = \arccos(\frac{1-1}{2}) = \arccos(0) = 90°$. Axis: $\hat{k} = \frac{1}{2\sin 90°}(R_{32}-R_{23}, R_{13}-R_{31}, R_{21}-R_{12}) = \frac{1}{2}(0-0, 0-0, 1-(-1)) = (0, 0, 1)$. So: **90° about the z-axis**. ✓
+
+2. $\theta = 180°$, so $\sin\theta = 0$, $1-\cos\theta = 2$. $R = I + 0 + 2[\hat{k}]_\times^2$. With $\hat{k} = \frac{1}{\sqrt{2}}(1,1,0)$: $[\hat{k}]_\times^2 = \hat{k}\hat{k}^T - I = \frac{1}{2}\begin{bmatrix}1&1&0\\1&1&0\\0&0&0\end{bmatrix} - I$. So $R = I + 2(\frac{1}{2}\begin{bmatrix}1&1&0\\1&1&0\\0&0&0\end{bmatrix} - I) = \begin{bmatrix}0&1&0\\1&0&0\\0&0&-1\end{bmatrix}$. This swaps x and y and negates z.
+
+3. $q = (\cos 60°, \sin 60° \cdot (0,0,1)) = (\frac{1}{2}, 0, 0, \frac{\sqrt{3}}{2})$.
+
+4. Using $q_1 \otimes q_2 = (w_1w_2 - \vec{v}_1\cdot\vec{v}_2, \; w_1\vec{v}_2 + w_2\vec{v}_1 + \vec{v}_1\times\vec{v}_2)$: $w = \frac{\sqrt{2}}{2}\cdot\frac{\sqrt{2}}{2} - ((\frac{\sqrt{2}}{2})(0)+(0)(\frac{\sqrt{2}}{2})+(0)(0)) = \frac{1}{2}$. $\vec{v} = \frac{\sqrt{2}}{2}(0,\frac{\sqrt{2}}{2},0) + \frac{\sqrt{2}}{2}(\frac{\sqrt{2}}{2},0,0) + (\frac{\sqrt{2}}{2},0,0)\times(0,\frac{\sqrt{2}}{2},0) = (0,\frac{1}{2},0) + (\frac{1}{2},0,0) + (0,0,\frac{1}{2}) = (\frac{1}{2}, \frac{1}{2}, \frac{1}{2})$. Result: $q_1 \otimes q_2 = (\frac{1}{2}, \frac{1}{2}, \frac{1}{2}, \frac{1}{2})$.
+
+5. $\Omega = \arccos(q_0 \cdot q_1) = \arccos(0) = 90°$. $\text{slerp}(q_0, q_1, 0.5) = q_0 \frac{\sin(45°)}{\sin(90°)} + q_1 \frac{\sin(45°)}{\sin(90°)} = \frac{\sqrt{2}/2}{1}(q_0 + q_1) = \frac{\sqrt{2}}{2}(1,0,0,1)$. Normalized: $(\frac{\sqrt{2}}{2}, 0, 0, \frac{\sqrt{2}}{2})$. This is a **90° rotation about z** — exactly halfway between 0° and 180°. ✓
+
+</details>
+
+<Callout type="success" title="Module 4 Complete!">
+
+Congratulations! You've mastered the advanced mathematical tools of robotics:
+
+1. **Eigenvalues & eigenvectors** — for stability analysis, PCA, and understanding manipulability
+2. **Coordinate frames** — for managing multi-sensor systems and transformation chains
+3. **Rotation representations** — quaternions for singularity-free, interpolation-friendly orientation control
+
+**Next module**: We'll bring everything together in **Module 5: Applications**, applying these tools to real robotics problems — inverse kinematics, trajectory planning, and more!
+
+</Callout>

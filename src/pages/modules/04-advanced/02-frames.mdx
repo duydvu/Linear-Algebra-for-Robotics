@@ -1,0 +1,288 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Coordinate Frames'
+description: 'Managing multiple reference frames in robotic systems — world, body, sensor, and tool frames'
+module: 4
+lesson: 2
+---
+
+import FrameViz from '../../../components/interactive/advanced/FrameViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Coordinate Frames
+
+A real robot doesn't have just one coordinate system — it has many. The world has a fixed frame, the robot base has its own frame, each joint defines a frame, the camera sees in its own frame, and the gripper tip has yet another. **Every piece of data — positions, velocities, forces — is expressed relative to some frame**, and confusing which frame you're in is one of the most common (and dangerous) bugs in robotics software.
+
+This lesson is about managing that complexity rigorously.
+
+## What Is a Coordinate Frame?
+
+A **coordinate frame** (or reference frame) is an origin point plus a set of orthogonal basis vectors that define directions. In 3D, a frame $\{A\}$ consists of:
+
+- An origin $\mathbf{o}_A$ — the "zero point"
+- Three unit vectors $\hat{x}_A, \hat{y}_A, \hat{z}_A$ — the axis directions
+
+A point $\mathbf{p}$ can be described in frame $\{A\}$ or frame $\{B\}$, and the coordinates will generally be different numbers representing the same physical point.
+
+We write ${}^A\mathbf{p}$ to mean "the coordinates of point $\mathbf{p}$ expressed in frame $\{A\}$."
+
+## Transforms Between Frames
+
+The homogeneous transformation $T_B^A$ (or equivalently ${}^A T_B$) converts a point from frame $\{B\}$ coordinates to frame $\{A\}$ coordinates:
+
+$$
+{}^A\mathbf{p} = T_B^A \; {}^B\mathbf{p}
+$$
+
+This $4 \times 4$ matrix encodes both the rotation and translation of frame $\{B\}$ relative to frame $\{A\}$:
+
+$$
+T_B^A = \begin{bmatrix} R_B^A & \mathbf{d}_B^A \\ \mathbf{0}^T & 1 \end{bmatrix}
+$$
+
+where:
+- $R_B^A$ is the $3 \times 3$ rotation: the columns are the unit vectors of $\{B\}$'s axes expressed in $\{A\}$
+- $\mathbf{d}_B^A$ is the position of $\{B\}$'s origin expressed in $\{A\}$
+
+<Callout type="warning" title="Notation Varies Across Textbooks">
+
+There is no universal standard for transform notation. Common conventions include:
+
+| Notation | Meaning |
+|---|---|
+| $T_B^A$ or ${}^AT_B$ | Transforms points **from** $\{B\}$ **to** $\{A\}$ |
+| $T_{AB}$ | Ambiguous — some books mean $A \to B$, others mean $B \to A$ |
+
+In this course, $T_B^A$ always means "converts from $\{B\}$ to $\{A\}$." Read it as: "the transform **of** frame $\{B\}$ **expressed in** frame $\{A\}$." Always verify the convention when reading papers or using libraries.
+
+</Callout>
+
+## Chaining Transforms
+
+To go from frame $\{C\}$ to frame $\{A\}$ via frame $\{B\}$, chain the transforms:
+
+$$
+T_C^A = T_B^A \cdot T_C^B
+$$
+
+Read right-to-left: first convert from $\{C\}$ to $\{B\}$, then from $\{B\}$ to $\{A\}$.
+
+The subscript/superscript indices "cancel" like fractions: $T_{\cancel{B}}^A \cdot T_C^{\cancel{B}} = T_C^A$. This mnemonic helps catch mistakes — if adjacent indices don't match, the chain is wrong.
+
+For a full kinematic chain with $n$ frames:
+
+$$
+T_n^0 = T_1^0 \cdot T_2^1 \cdot T_3^2 \cdots T_n^{n-1}
+$$
+
+<Callout type="info" title="Inverse Transforms">
+
+To go the other direction: $T_A^B = (T_B^A)^{-1}$.
+
+For homogeneous transforms, the inverse has a cheap closed-form (from Module 3):
+
+$$
+(T_B^A)^{-1} = \begin{bmatrix} (R_B^A)^T & -(R_B^A)^T \mathbf{d}_B^A \\ \mathbf{0}^T & 1 \end{bmatrix}
+$$
+
+No need for general matrix inversion — just transpose the rotation and adjust the translation.
+
+</Callout>
+
+## Common Frames in Robotics
+
+A typical robotic system involves several standard frames:
+
+### World Frame $\{W\}$
+
+The **global** or **map** frame. Fixed to the environment. All global planning and mapping happens here. Gravity points along $-z$ (or $-y$, depending on convention).
+
+### Base Frame $\{B\}$
+
+Fixed to the robot's base. For a mobile robot, it moves with the robot. For a fixed manipulator, it's often coincident with the world frame.
+
+### Joint Frames $\{J_i\}$
+
+Each joint in a serial manipulator defines a frame according to the DH convention (from Module 3). The chain $T_{J_1}^B \cdot T_{J_2}^{J_1} \cdots T_{J_n}^{J_{n-1}}$ gives forward kinematics.
+
+### Tool/End-Effector Frame $\{T\}$
+
+Attached to the gripper or tool tip. This is what you want to control — positioning $\{T\}$ at the desired pose in $\{W\}$ is the goal of motion planning.
+
+### Sensor Frames
+
+Each sensor has its own frame:
+- **Camera frame** $\{C\}$: origin at the optical center, z-axis along the viewing direction
+- **LiDAR frame** $\{L\}$: origin at the scanner, measurements in its local coordinates
+- **IMU frame** $\{I\}$: measures accelerations and angular velocities in its own axes
+
+<Example title="Camera-to-World Transform" robotics>
+
+A camera mounted on a robot arm sees an object at position ${}^C\mathbf{p} = (0.1, -0.05, 0.8)$ m in its local frame. To find the object's world position:
+
+$$
+{}^W\mathbf{p} = T_B^W \cdot T_{EE}^B \cdot T_C^{EE} \cdot {}^C\mathbf{p}
+$$
+
+The chain: camera → end-effector → base → world. Each transform comes from:
+- $T_C^{EE}$: camera **extrinsic calibration** (measured once, fixed)
+- $T_{EE}^B$: robot **forward kinematics** (computed from joint encoders)
+- $T_B^W$: robot **localization** (from SLAM or known placement)
+
+An error in **any** of these transforms propagates to the final world-frame position.
+
+</Example>
+
+## Frame Trees
+
+In a complex system, frames form a **tree** structure rooted at the world frame. Every frame has exactly one parent, and the path from any frame to any other frame is unique.
+
+```
+{World}
+├── {Map}
+│   └── {Odom}
+│       └── {Base}
+│           ├── {Joint1}
+│           │   └── {Joint2}
+│           │       └── {EE}
+│           │           └── {Tool}
+│           ├── {Camera}
+│           ├── {LiDAR}
+│           └── {IMU}
+└── {Target}
+```
+
+To transform between any two frames, walk up the tree to their common ancestor, then back down:
+
+$$
+T_{\text{Target}}^{\text{Camera}} = (T_{\text{Camera}}^{\text{World}})^{-1} \cdot T_{\text{Target}}^{\text{World}}
+$$
+
+Or equivalently: $T_{\text{Target}}^{\text{Camera}} = T_{\text{World}}^{\text{Camera}} \cdot T_{\text{Target}}^{\text{World}}$.
+
+<Example title="ROS tf2 — The Standard Frame Manager" robotics>
+
+In ROS (Robot Operating System), the **tf2** library manages the frame tree automatically:
+
+- Each node **publishes** transforms (e.g., the SLAM node publishes $T_{\text{Base}}^{\text{Map}}$)
+- Any node can **query** the transform between any two frames at any time
+- tf2 handles the chaining, inversion, and time synchronization internally
+
+This is why consistent frame conventions matter in practice. If one node publishes its transform using a different convention than what another node expects, the result is a subtle, hard-to-debug spatial error — the robot reaches to the wrong location, the map drifts, or the obstacle detector gives false positives.
+
+</Example>
+
+## Extrinsic Calibration
+
+**Extrinsic calibration** is the process of determining the fixed transform between two frames — most commonly between a sensor and the robot body.
+
+### Hand-Eye Calibration
+
+A camera is mounted on a robot's end-effector. You know:
+- $T_{EE}^B$ from forward kinematics (changes with joint angles)
+- $T_{\text{target}}^C$ from the camera (sees a calibration target)
+
+You need to find the **unknown** fixed transform $T_C^{EE}$ (camera relative to end-effector). The key observation: for any pose $i$, the chain from calibration target to base through the camera and end-effector must equal the fixed (unknown) target-to-base transform:
+
+$$
+T_{EE,i}^B \cdot T_C^{EE} \cdot T_{\text{target},i}^C = T_{\text{target}}^B = \text{const}
+$$
+
+By taking two poses $i, j$ and eliminating the unknown constant, you get the classic $AX = XB$ problem, where $A$ is the relative end-effector motion and $B$ is the relative camera observation. It requires at least two poses with non-parallel rotation axes, and in practice you use 10+ poses with a least-squares solver.
+
+<Callout type="info" title="Why Calibration Matters">
+
+A 1° rotation error in a camera extrinsic calibration mounted 1 meter from the robot base translates to ~1.7 cm position error at the base. For a camera looking at objects 5 meters away, that same 1° error becomes ~8.7 cm. Calibration accuracy directly limits task accuracy.
+
+</Callout>
+
+### LiDAR-to-IMU Calibration
+
+For autonomous vehicles, the LiDAR and IMU frames must be precisely aligned. Errors here cause the point cloud to "smear" when the vehicle turns, corrupting the map. The fixed transform $T_L^I$ is typically found by:
+
+1. Collecting data while performing varied motions (turns, accelerations)
+2. Optimizing $T_L^I$ to minimize inconsistency between the LiDAR-based motion estimate and the IMU-based motion estimate
+
+## Velocity and Force Transformations
+
+Transforms don't just apply to positions. Velocities and forces also need frame conversions, but the rules differ.
+
+### Velocity Transform (Adjoint)
+
+A **twist** (linear + angular velocity) in frame $\{B\}$ transforms to frame $\{A\}$ via the **adjoint** of $T_B^A$:
+
+$$
+\mathcal{V}^A = \text{Ad}_{T_B^A} \; \mathcal{V}^B
+$$
+
+The adjoint is a $6 \times 6$ matrix — not the same as simply applying $T$ to a position vector. This is because angular velocity doesn't transform like a point.
+
+### Force/Wrench Transform
+
+A **wrench** (force + torque) transforms with the **inverse transpose** of the adjoint. Forces and velocities are **dual** — they transform differently to preserve the power relationship $P = \mathcal{F}^T \mathcal{V}$.
+
+<Callout type="warning" title="Don't Transform Velocities Like Positions">
+
+A common mistake: applying a homogeneous transform directly to a velocity vector. This is **wrong**. Velocities are not points — they don't have a position component, and the translational part of $T$ doesn't apply the same way. Use the adjoint representation, or carefully separate the rotation (which does apply) from the translation (which generates a cross-product coupling term).
+
+</Callout>
+
+## Common Pitfalls
+
+### 1. Frame Mismatch
+Combining data from different frames without transforming first. Every vector and matrix has an implicit frame — treat frame labels as rigorously as you treat units (meters vs. millimeters).
+
+### 2. Transform Direction
+Applying $T_B^A$ when you needed $T_A^B$ (or vice versa). If the result looks mirrored or the robot moves in the opposite direction, check the transform direction.
+
+### 3. Pre-Multiply vs. Post-Multiply
+For body-fixed (intrinsic) operations, post-multiply: $T_{\text{new}} = T_{\text{old}} \cdot T_{\text{delta}}$.
+For world-fixed (extrinsic) operations, pre-multiply: $T_{\text{new}} = T_{\text{delta}} \cdot T_{\text{old}}$.
+
+### 4. Stale Transforms
+On a moving robot, transforms change over time. Using a camera image from time $t_1$ with a robot pose from time $t_2$ introduces error proportional to the robot's velocity and the time gap.
+
+<FrameViz client:load />
+
+## Practice Problems
+
+1. Frames $\{A\}$, $\{B\}$, $\{C\}$ are arranged such that $T_B^A = \begin{bmatrix} R_z(90°) & (1, 0, 0)^T \\ 0 & 1\end{bmatrix}$ and $T_C^B = \begin{bmatrix} I & (0, 2, 0)^T \\ 0 & 1\end{bmatrix}$. What is $T_C^A$?
+
+2. A camera sees an object at ${}^C\mathbf{p} = (0, 0, 1.5)$ m. The camera-to-base transform is $T_C^B = \begin{bmatrix} I & (0.5, 0, 0.8)^T \\ 0 & 1\end{bmatrix}$. What is ${}^B\mathbf{p}$?
+
+3. You have transforms $T_B^A$, $T_C^B$, and $T_D^C$. Write the expression for $T_A^D$ (from $\{A\}$ to $\{D\}$).
+
+4. A LiDAR measures a wall point at ${}^L\mathbf{p} = (3, 0, 0)$. The LiDAR is mounted 0.2 m above and 0.1 m forward of the robot base, with no rotation offset. Write $T_L^B$ and compute ${}^B\mathbf{p}$.
+
+5. A mobile robot has base-to-world transform $T_B^W$ and a camera with $T_C^B$. The camera sees an AprilTag at ${}^C\mathbf{p}_{\text{tag}}$. Write the full expression for the tag position in the world frame.
+
+<details>
+<summary>**Answers**</summary>
+
+1. $T_C^A = T_B^A \cdot T_C^B$. With $R_z(90°)$, this rotation maps $(0,2,0)$ to $(-2,0,0)$, and adds the translation $(1,0,0)$. Result: $T_C^A$ has rotation $R_z(90°)$ and translation $(-1, 0, 0)^T$. The point at $\{C\}$'s origin maps to $(-1, 0, 0)$ in $\{A\}$.
+
+2. ${}^B\mathbf{p} = T_C^B \cdot {}^C\mathbf{p} = \begin{bmatrix} I & (0.5, 0, 0.8)^T \end{bmatrix} (0, 0, 1.5, 1)^T = (0.5, 0, 2.3)$ m.
+
+3. $T_A^D = (T_D^A)^{-1}$ where $T_D^A = T_B^A \cdot T_C^B \cdot T_D^C$. So $T_A^D = (T_B^A \cdot T_C^B \cdot T_D^C)^{-1} = (T_D^C)^{-1} (T_C^B)^{-1} (T_B^A)^{-1}$.
+
+4. $T_L^B = \begin{bmatrix} I & (0.1, 0, 0.2)^T \\ 0^T & 1\end{bmatrix}$. ${}^B\mathbf{p} = T_L^B \cdot {}^L\mathbf{p} = (3.1, 0, 0.2)$ m.
+
+5. ${}^W\mathbf{p}_{\text{tag}} = T_B^W \cdot T_C^B \cdot {}^C\mathbf{p}_{\text{tag}}$.
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. Every measurement lives in **some frame** — always track which one
+2. $T_B^A$ converts points from frame $\{B\}$ to frame $\{A\}$; chain by matching inner indices
+3. Frames form a **tree**; transforming between any two frames follows a unique path through the tree
+4. **Extrinsic calibration** determines the fixed transforms between sensors and the robot body
+5. Velocities and forces transform **differently** from positions — use the adjoint, not the raw transform
+6. Frame errors are among the **most common and hardest-to-debug** issues in robotics software
+
+</Callout>
+
+## Next Steps
+
+You can now manage multiple coordinate frames confidently. The final lesson in this module tackles **rotation representations** — axis-angle, rotation vectors, and quaternions — representations that overcome Euler angle limitations and enable smooth interpolation for motion planning.

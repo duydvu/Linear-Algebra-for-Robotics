@@ -1,0 +1,328 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Eigenvalues & Eigenvectors'
+description: 'Understanding eigenvalues and eigenvectors with applications to robotics stability and system analysis'
+module: 4
+lesson: 1
+---
+
+import EigenViz from '../../../components/interactive/advanced/EigenViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Eigenvalues & Eigenvectors
+
+When a matrix multiplies most vectors, the result points in a completely new direction. But some special vectors only get **scaled** — their direction stays the same (or flips). These are **eigenvectors**, and the scale factors are **eigenvalues**. Together, they reveal the intrinsic behavior of a linear transformation.
+
+## Definition
+
+Given a square matrix $A$, a nonzero vector $\vec{v}$ is an **eigenvector** of $A$ if:
+
+$$
+A\vec{v} = \lambda \vec{v}
+$$
+
+where $\lambda$ is a scalar called the **eigenvalue**. The matrix $A$ acts on $\vec{v}$ by simply stretching (or compressing, or flipping) it — no rotation, no shearing, just scaling by $\lambda$.
+
+<Callout type="info" title="Geometric Intuition">
+
+Think of eigenvalues as the "natural axes" of a transformation:
+- $\lambda > 1$: the eigenvector direction is **stretched**
+- $0 < \lambda < 1$: the eigenvector direction is **compressed**
+- $\lambda < 0$: the eigenvector direction is **flipped and scaled**
+- $\lambda = 0$: the eigenvector direction is **collapsed** (the matrix is singular along this direction)
+
+</Callout>
+
+## Computing Eigenvalues
+
+Rearrange $A\vec{v} = \lambda\vec{v}$:
+
+$$
+(A - \lambda I)\vec{v} = \vec{0}
+$$
+
+For a nonzero $\vec{v}$ to exist, the matrix $(A - \lambda I)$ must be **singular** — its determinant must be zero:
+
+$$
+\det(A - \lambda I) = 0
+$$
+
+This is the **characteristic equation**. For an $n \times n$ matrix, it yields a polynomial of degree $n$ in $\lambda$.
+
+### 2×2 Example
+
+Find the eigenvalues of:
+
+$$
+A = \begin{bmatrix} 3 & 1 \\ 0 & 2 \end{bmatrix}
+$$
+
+The characteristic equation:
+
+$$
+\det\begin{bmatrix} 3 - \lambda & 1 \\ 0 & 2 - \lambda \end{bmatrix} = (3 - \lambda)(2 - \lambda) - 0 = 0
+$$
+
+$$
+\lambda^2 - 5\lambda + 6 = 0 \implies (\lambda - 3)(\lambda - 2) = 0
+$$
+
+So $\lambda_1 = 3$ and $\lambda_2 = 2$.
+
+## Computing Eigenvectors
+
+For each eigenvalue $\lambda_i$, solve $(A - \lambda_i I)\vec{v} = \vec{0}$ for $\vec{v}$.
+
+**For $\lambda_1 = 3$:**
+
+$$
+(A - 3I)\vec{v} = \begin{bmatrix} 0 & 1 \\ 0 & -1 \end{bmatrix}\vec{v} = \vec{0} \implies v_2 = 0
+$$
+
+Eigenvector: $\vec{v}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ (or any scalar multiple)
+
+**For $\lambda_2 = 2$:**
+
+$$
+(A - 2I)\vec{v} = \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix}\vec{v} = \vec{0} \implies v_1 + v_2 = 0
+$$
+
+Eigenvector: $\vec{v}_2 = \begin{bmatrix} -1 \\ 1 \end{bmatrix}$ (or any scalar multiple)
+
+<Callout type="warning" title="Eigenvectors Are Not Unique">
+
+If $\vec{v}$ is an eigenvector, so is $c\vec{v}$ for any nonzero scalar $c$. We typically normalize eigenvectors to unit length, but the choice of sign/scale is arbitrary. What matters is the **direction** (or subspace).
+
+</Callout>
+
+## Symmetric Matrices — A Special Case
+
+Symmetric matrices ($A = A^T$) arise frequently in robotics — inertia tensors, covariance matrices, stiffness matrices. They have two powerful guarantees:
+
+1. **All eigenvalues are real** (no complex numbers)
+2. **Eigenvectors are orthogonal** (perpendicular to each other)
+
+This means a symmetric matrix can always be decomposed as:
+
+$$
+A = Q \Lambda Q^T
+$$
+
+where $Q$ is an orthogonal matrix of eigenvectors and $\Lambda$ is a diagonal matrix of eigenvalues. This is the **spectral decomposition** — it decomposes the transformation into independent scalings along perpendicular axes.
+
+<Example title="Inertia Tensor" robotics>
+
+The **inertia tensor** of a rigid body describes how mass is distributed around each axis:
+
+$$
+I = \begin{bmatrix}
+I_{xx} & -I_{xy} & -I_{xz} \\
+-I_{xy} & I_{yy} & -I_{yz} \\
+-I_{xz} & -I_{yz} & I_{zz}
+\end{bmatrix}
+$$
+
+This matrix is symmetric ($I = I^T$). Its eigenvectors are the **principal axes of inertia** — the directions around which the body rotates most naturally (without wobbling). Its eigenvalues are the **principal moments of inertia**.
+
+When you design a robot link, aligning the coordinate frame with the principal axes simplifies the dynamics equations because the inertia tensor becomes diagonal:
+
+$$
+I_{\text{principal}} = \begin{bmatrix}
+I_1 & 0 & 0 \\
+0 & I_2 & 0 \\
+0 & 0 & I_3
+\end{bmatrix}
+$$
+
+</Example>
+
+## Eigenvalues of Rotation Matrices
+
+Rotation matrices have a distinctive eigenvalue signature. For a 2D rotation by angle $\theta$ (where $\theta \neq 0, \pi$):
+
+$$
+R(\theta) = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix}
+$$
+
+The characteristic equation gives:
+
+$$
+\lambda^2 - 2\cos\theta \cdot \lambda + 1 = 0 \implies \lambda = \cos\theta \pm i\sin\theta = e^{\pm i\theta}
+$$
+
+The eigenvalues are **complex** — which makes sense geometrically: a nontrivial rotation in 2D doesn't preserve any real direction.
+
+For a 3D rotation by angle $\theta$ around axis $\hat{k}$, the eigenvalues are:
+
+$$
+\lambda_1 = 1, \quad \lambda_{2,3} = e^{\pm i\theta}
+$$
+
+The eigenvector for $\lambda = 1$ is the **rotation axis** $\hat{k}$ itself — the one direction that the rotation leaves unchanged. This fact is the foundation of the axis-angle representation (covered in Lesson 3).
+
+<Callout type="info" title="Key Insight">
+
+Every 3D rotation matrix has eigenvalue $\lambda = 1$. The corresponding eigenvector **is** the rotation axis. This is an elegant way to extract the axis from a rotation matrix.
+
+</Callout>
+
+## Diagonalization
+
+A matrix $A$ is **diagonalizable** if it has $n$ linearly independent eigenvectors. In that case:
+
+$$
+A = P \Lambda P^{-1}
+$$
+
+where $P = [\vec{v}_1 \mid \vec{v}_2 \mid \ldots \mid \vec{v}_n]$ has eigenvectors as columns, and $\Lambda = \text{diag}(\lambda_1, \lambda_2, \ldots, \lambda_n)$.
+
+This decomposition is powerful because:
+- **Matrix powers**: $A^k = P \Lambda^k P^{-1}$ (just raise each eigenvalue to the $k$-th power)
+- **Matrix exponential**: $e^{At} = P \, e^{\Lambda t} \, P^{-1}$ (critical for solving differential equations)
+
+## Robotics Applications
+
+### 1. Stability of Linear Systems
+
+A linear dynamical system $\dot{\mathbf{x}} = A\mathbf{x}$ has behavior determined entirely by the eigenvalues of $A$:
+
+| Eigenvalue property | System behavior |
+|---|---|
+| All Re($\lambda_i$) < 0 | **Stable** — all states decay to zero |
+| Any Re($\lambda_i$) > 0 | **Unstable** — at least one state grows unbounded |
+| Re($\lambda_i$) = 0 (others < 0) | **Marginally stable** — oscillates without growing or decaying |
+
+<Example title="Joint Controller Stability" robotics>
+
+A PD controller for a single robot joint gives the closed-loop dynamics:
+
+$$
+\begin{bmatrix} \dot{e} \\ \ddot{e} \end{bmatrix} = \begin{bmatrix} 0 & 1 \\ -k_p/m & -k_d/m \end{bmatrix} \begin{bmatrix} e \\ \dot{e} \end{bmatrix}
+$$
+
+where $e$ is the position error, $k_p$ is the proportional gain, and $k_d$ is the derivative gain.
+
+The characteristic equation is $\lambda^2 + (k_d/m)\lambda + k_p/m = 0$. For stability, both eigenvalues must have negative real parts. By the quadratic formula, this requires:
+- $k_p > 0$ (positive stiffness)
+- $k_d > 0$ (positive damping)
+
+The eigenvalues also reveal the **response character**: real eigenvalues give overdamped response (sluggish), complex eigenvalues give underdamped response (oscillatory), and the boundary is critical damping at $k_d^2 = 4mk_p$.
+
+</Example>
+
+### 2. Principal Component Analysis (PCA)
+
+Given a point cloud from a LiDAR sensor, the **covariance matrix** captures how the data is spread:
+
+$$
+\Sigma = \frac{1}{n}\sum_{i=1}^{n} (\mathbf{p}_i - \bar{\mathbf{p}})(\mathbf{p}_i - \bar{\mathbf{p}})^T
+$$
+
+The eigenvectors of $\Sigma$ point along the directions of **maximum variance** (the principal axes of the data cloud), and the eigenvalues measure how much variance there is along each direction.
+
+<Example title="Surface Normal Estimation" robotics>
+
+A mobile robot's LiDAR returns a cluster of 3D points near a surface. To estimate the surface normal:
+
+1. Compute the covariance matrix $\Sigma$ of the local neighborhood
+2. Find the eigenvalues $\lambda_1 \geq \lambda_2 \geq \lambda_3$
+3. The eigenvector corresponding to $\lambda_3$ (the **smallest** eigenvalue) is the surface normal
+
+Why? The smallest eigenvalue direction has the least spread — that's the direction perpendicular to the surface where points vary the least.
+
+If $\lambda_3 \approx 0$ and $\lambda_1, \lambda_2 \gg 0$: clearly a flat surface.
+If $\lambda_2 \approx \lambda_3 \approx 0$: the points lie along a line (edge).
+If $\lambda_1 \approx \lambda_2 \approx \lambda_3$: the points form a blob (corner or noise).
+
+</Example>
+
+### 3. Vibration Analysis
+
+The generalized eigenvalue problem for a mechanical system:
+
+$$
+K\vec{v} = \omega^2 M\vec{v}
+$$
+
+where $K$ is the stiffness matrix and $M$ is the mass matrix. The eigenvalues $\omega^2$ give the **natural frequencies** and the eigenvectors give the **mode shapes** — the patterns of vibration the system naturally exhibits.
+
+<Example title="Robot Arm Resonance" robotics>
+
+A 2-DOF robot arm has mass matrix $M$ and stiffness matrix $K$. Solving the generalized eigenvalue problem yields two natural frequencies $\omega_1, \omega_2$ and their mode shapes.
+
+If the controller commands motion at a frequency near $\omega_1$ or $\omega_2$, the arm **resonates** — vibrations amplify and can damage the system. Knowledge of these eigenvalues lets you:
+- Design controllers that avoid exciting resonant modes
+- Add damping targeted at problematic frequencies
+- Set trajectory acceleration limits to stay below resonance
+
+</Example>
+
+### 4. Manipulability Ellipsoid
+
+The matrix $J J^T$ (where $J$ is the robot Jacobian) encodes the end-effector's ability to move and exert forces in different directions. Its eigenvectors define the axes of the **manipulability ellipsoid**, and the square roots of its eigenvalues are the semi-axis lengths.
+
+- Directions with **large** eigenvalues: the robot can move/push easily
+- Directions with **small** eigenvalues: the robot struggles (near singularity)
+- The ratio $\sqrt{\lambda_{\max}/\lambda_{\min}}$ is the **condition number** — it measures how "isotropic" the robot's capability is
+
+<Callout type="info" title="Yoshikawa's Manipulability Measure">
+
+A single scalar summarizing overall dexterity is $w = \sqrt{\det(JJ^T)} = \sqrt{\lambda_1 \lambda_2 \cdots \lambda_n}$. When $w = 0$, the robot is at a singularity. Maximizing $w$ drives the robot toward configurations with the most uniform capability in all directions.
+
+</Callout>
+
+## The Eigenvalue Decomposition Visually
+
+Consider a **symmetric** 2×2 matrix acting on the unit circle. Because symmetric matrices have orthogonal eigenvectors and real eigenvalues, the eigenvectors define the axes of the resulting **ellipse**, and the absolute eigenvalues are the semi-axis lengths:
+
+- The unit circle maps to an ellipse whose principal axes align with the eigenvectors
+- The lengths of the semi-axes equal $|\lambda_1|$ and $|\lambda_2|$
+- If $\lambda_1 = \lambda_2$, the ellipse is a circle (uniform scaling)
+- If one eigenvalue is zero, the ellipse collapses to a line (singular matrix)
+
+For non-symmetric matrices, the ellipse axes are instead determined by the **singular vectors** (from the SVD), and the semi-axis lengths are the **singular values** — a topic closely related to eigenvalues but beyond this lesson's scope.
+
+<EigenViz client:load />
+
+## Practice Problems
+
+1. Find the eigenvalues and eigenvectors of $A = \begin{bmatrix} 4 & 2 \\ 1 & 3 \end{bmatrix}$.
+
+2. A system matrix is $A = \begin{bmatrix} 0 & 1 \\ -2 & -3 \end{bmatrix}$. Is the system stable?
+
+3. The covariance matrix of a 2D point cloud is $\Sigma = \begin{bmatrix} 5 & 2 \\ 2 & 2 \end{bmatrix}$. Find the principal directions and their variances.
+
+4. A 2D rotation matrix $R(60°)$ has eigenvalues $e^{\pm i\pi/3}$. Verify this by computing $\det(R - \lambda I) = 0$.
+
+5. A robot's Jacobian at a particular configuration gives $JJ^T = \begin{bmatrix} 9 & 0 \\ 0 & 1 \end{bmatrix}$. Describe the manipulability ellipsoid. In which direction is the robot most capable?
+
+<details>
+<summary>**Answers**</summary>
+
+1. Characteristic equation: $(4-\lambda)(3-\lambda) - 2 = \lambda^2 - 7\lambda + 10 = (\lambda-5)(\lambda-2) = 0$. So $\lambda_1 = 5$, $\lambda_2 = 2$. For $\lambda_1 = 5$: $(A-5I)\vec{v}=0 \Rightarrow \vec{v}_1 = (2, 1)$. For $\lambda_2 = 2$: $(A-2I)\vec{v}=0 \Rightarrow \vec{v}_2 = (-1, 1)$.
+
+2. Characteristic equation: $\lambda^2 + 3\lambda + 2 = (\lambda+1)(\lambda+2) = 0$. Eigenvalues: $\lambda_1 = -1$, $\lambda_2 = -2$. Both are negative, so the system is **stable**.
+
+3. Characteristic equation: $(5-\lambda)(2-\lambda) - 4 = \lambda^2 - 7\lambda + 6 = (\lambda-6)(\lambda-1) = 0$. So $\lambda_1 = 6$ (direction of max variance), $\lambda_2 = 1$. For $\lambda_1 = 6$: $\vec{v}_1 = (2, 1)/\sqrt{5}$. For $\lambda_2 = 1$: $\vec{v}_2 = (-1, 2)/\sqrt{5}$. The data is most spread along the direction $(2,1)$.
+
+4. $R(60°) = \begin{bmatrix} 1/2 & -\sqrt{3}/2 \\ \sqrt{3}/2 & 1/2 \end{bmatrix}$. $\det(R - \lambda I) = (1/2 - \lambda)^2 + 3/4 = \lambda^2 - \lambda + 1 = 0$. $\lambda = \frac{1 \pm \sqrt{1-4}}{2} = \frac{1 \pm i\sqrt{3}}{2} = e^{\pm i\pi/3}$. Confirmed.
+
+5. Eigenvalues are 9 and 1. The ellipsoid has semi-axis $\sqrt{9}=3$ along $x$ and $\sqrt{1}=1$ along $y$. The robot is **3x more capable** in the x-direction than the y-direction. Condition number = 3.
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Eigenvectors** are the directions a matrix preserves; **eigenvalues** are the scale factors
+2. The **characteristic equation** $\det(A - \lambda I) = 0$ yields eigenvalues
+3. **Symmetric matrices** have real eigenvalues and orthogonal eigenvectors
+4. Eigenvalues of the **system matrix** determine stability (negative real parts = stable)
+5. Eigenvalues of **covariance matrices** reveal principal directions in sensor data
+6. The **manipulability ellipsoid** uses eigenanalysis to assess robot dexterity
+
+</Callout>
+
+## Next Steps
+
+Now that you can analyze the intrinsic properties of matrices, the next lesson covers **coordinate frames** — how to manage the multiple reference frames that every real robot must juggle.
