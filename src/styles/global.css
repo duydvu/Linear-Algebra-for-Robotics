@@ -305,7 +305,7 @@ canvas {
 }
 
 /* Reset mdx-content typography inside DaisyUI components */
-.mdx-content :is(.card-body, .alert) :is(h1, h2, h3, h4, p, ul, ol, li, strong, a) {
+.mdx-content :is(.card-body, .alert) :is(h1, h2, h3, h4, p, ul, ol, li, strong, a:not(.btn)) {
   margin-top: 0;
   margin-bottom: 0;
   color: inherit;
