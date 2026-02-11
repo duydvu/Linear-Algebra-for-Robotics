@@ -4,37 +4,37 @@ import Layout from '../../../components/layout/Layout.astro';
 const lessons = [
   {
     id: 1,
-    title: 'Eigenvalues & Eigenvectors',
-    description: 'Discover the special directions that matrices preserve. Learn to compute eigenvalues and eigenvectors, and see how they reveal stability properties, vibration modes, and principal axes in robotic systems.',
-    path: '/modules/04-advanced/01-eigenvalues',
-    duration: '35 min',
-    tags: ['Eigenvalues', 'Eigenvectors', 'Characteristic Equation', 'Diagonalization'],
-    roboticsTag: 'Stability Analysis'
+    title: 'Forward Kinematics',
+    description: 'Learn to compute the position and orientation of a robot\'s end-effector from its joint angles. Master the Denavit-Hartenberg convention and build kinematic chains by multiplying homogeneous transformation matrices.',
+    path: '/modules/05-applications/01-forward-kinematics',
+    duration: '40 min',
+    tags: ['DH Parameters', 'Kinematic Chain', 'Homogeneous Transforms', 'Workspace'],
+    roboticsTag: 'Robot Arms'
   },
   {
     id: 2,
-    title: 'Coordinate Frames',
-    description: 'Master the art of working with multiple reference frames — world, body, sensor, and tool. Understand frame trees, relative transforms, and the conventions that keep complex robotic systems consistent.',
-    path: '/modules/04-advanced/02-frames',
-    duration: '30 min',
-    tags: ['Reference Frames', 'Frame Trees', 'Relative Transforms', 'Conventions'],
-    roboticsTag: 'Multi-Sensor Fusion'
+    title: 'Velocity Kinematics',
+    description: 'Discover how the Jacobian matrix maps joint velocities to end-effector velocities. Understand singularities, the manipulability ellipsoid, and why velocity analysis is essential for real-time robot control.',
+    path: '/modules/05-applications/02-velocity-kinematics',
+    duration: '40 min',
+    tags: ['Jacobian', 'Singularities', 'Manipulability', 'Velocity Mapping'],
+    roboticsTag: 'Motion Control'
   },
   {
     id: 3,
-    title: 'Rotation Representations',
-    description: 'Go beyond Euler angles with axis-angle, rotation vectors, and quaternions. Learn SLERP interpolation for smooth motion planning and understand why quaternions are the industry standard.',
-    path: '/modules/04-advanced/03-rotation-representations',
-    duration: '40 min',
-    tags: ['Axis-Angle', 'Quaternions', 'SLERP', 'Rodrigues Formula'],
-    roboticsTag: 'Orientation Control'
+    title: 'Path Planning',
+    description: 'Apply potential fields, gradient-based planning, and trajectory interpolation to navigate robots through cluttered environments. See how linear algebra underpins every step from configuration space to smooth motion execution.',
+    path: '/modules/05-applications/03-path-planning',
+    duration: '35 min',
+    tags: ['Potential Fields', 'Gradient Descent', 'Configuration Space', 'Trajectory'],
+    roboticsTag: 'Navigation'
   }
 ];
 ---
 
 <Layout
-  title="Module 4: Advanced Topics"
-  description="Eigenvalues, coordinate frames, and rotation representations for robotics"
+  title="Module 5: Applications"
+  description="Forward kinematics, velocity kinematics, and path planning for robotics"
 >
   <div class="max-w-4xl mx-auto">
     <!-- Module Header -->
@@ -43,16 +43,16 @@ const lessons = [
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/modules">Modules</a></li>
-          <li>Module 4: Advanced Topics</li>
+          <li>Module 5: Applications</li>
         </ul>
       </div>
 
-      <div class="badge badge-primary mb-2">Module 4</div>
-      <h1 class="text-4xl font-bold mb-4">Advanced Topics</h1>
+      <div class="badge badge-primary mb-2">Module 5</div>
+      <h1 class="text-4xl font-bold mb-4">Applications</h1>
       <p class="text-lg text-base-content/70">
-        This module deepens your mathematical toolkit with eigenvalue analysis for understanding system behavior,
-        coordinate frame management for multi-sensor robots, and rotation representations that overcome the
-        limitations of Euler angles.
+        This is the capstone module where everything comes together. You'll apply vectors, matrices,
+        transformations, eigenvalues, and coordinate frames to solve the core problems of robotics:
+        computing where a robot's hand is, how fast it can move, and how to plan collision-free paths.
       </p>
     </div>
 
@@ -61,11 +61,12 @@ const lessons = [
       <div class="card-body">
         <h2 class="card-title">What You'll Learn</h2>
         <ul class="list-disc list-inside space-y-2 text-base-content/80">
-          <li>Compute eigenvalues and eigenvectors, and interpret them geometrically</li>
-          <li>Use eigenanalysis for stability, principal axes, and vibration modes</li>
-          <li>Manage coordinate frame trees and chain relative transforms</li>
-          <li>Represent rotations with axis-angle, rotation vectors, and quaternions</li>
-          <li>Interpolate orientations smoothly with SLERP for motion planning</li>
+          <li>Use DH parameters to build kinematic chains for serial robot arms</li>
+          <li>Compute end-effector position and orientation via forward kinematics</li>
+          <li>Derive and interpret the Jacobian for velocity mapping and singularity analysis</li>
+          <li>Evaluate robot dexterity using the manipulability ellipsoid</li>
+          <li>Plan paths using potential fields and gradient descent</li>
+          <li>Understand configuration space, workspace, and trajectory interpolation</li>
         </ul>
 
         <div class="flex gap-4 mt-4">
@@ -79,7 +80,7 @@ const lessons = [
           </div>
           <div class="stat place-items-center">
             <div class="stat-title">Duration</div>
-            <div class="stat-value text-accent">~105 min</div>
+            <div class="stat-value text-accent">~115 min</div>
           </div>
         </div>
       </div>
@@ -122,11 +123,12 @@ const lessons = [
       <div>
         <h3 class="font-bold">Prerequisites</h3>
         <div class="text-sm">
-          This module builds on all three previous modules. You should be comfortable with:
+          This module builds on all four previous modules. You should be comfortable with:
           <ul class="list-disc list-inside mt-2 space-y-1">
-            <li>Vector operations (dot product, cross product)</li>
+            <li>Vector operations (dot product, cross product, projections)</li>
             <li>Matrix multiplication, determinants, and inverses</li>
             <li>Rotation matrices, Euler angles, and homogeneous transforms</li>
+            <li>Eigenvalues, coordinate frames, and rotation representations</li>
           </ul>
         </div>
       </div>
@@ -134,14 +136,11 @@ const lessons = [
 
     <!-- Navigation -->
     <div class="flex justify-between items-center">
-      <a href="/modules/03-transformations" class="btn btn-outline">
-        &larr; Module 3: Transformations
+      <a href="/modules/04-advanced" class="btn btn-outline">
+        &larr; Module 4: Advanced Topics
       </a>
-      <a href="/modules/04-advanced/01-eigenvalues" class="btn btn-primary shadow-md shadow-primary/30">
-        Start Module 4
-      </a>
-      <a href="/modules/05-applications" class="btn btn-outline">
-        Module 5: Applications &rarr;
+      <a href="/modules/05-applications/01-forward-kinematics" class="btn btn-primary shadow-md shadow-primary/30">
+        Start Module 5
       </a>
     </div>
   </div>

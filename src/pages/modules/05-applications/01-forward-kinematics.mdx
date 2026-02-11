@@ -1,0 +1,276 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Forward Kinematics'
+description: 'Computing end-effector position and orientation from joint angles using DH parameters and homogeneous transforms'
+module: 5
+lesson: 1
+---
+
+import ForwardKinematicsViz from '../../../components/interactive/robotics/ForwardKinematicsViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Forward Kinematics
+
+A robot arm is a chain of rigid links connected by joints. The fundamental question of **forward kinematics** is: given the joint angles, where is the end-effector? This lesson shows how everything we've learned — rotation matrices, homogeneous transforms, and matrix multiplication — comes together to answer that question systematically.
+
+## The Problem
+
+Consider a serial robot arm with $n$ joints. Each joint has a variable $q_i$ (angle for revolute joints, displacement for prismatic joints). We want to find the **position** and **orientation** of the end-effector (the "hand") as a function of all joint variables:
+
+$$
+T_0^n = f(q_1, q_2, \ldots, q_n)
+$$
+
+where $T_0^n$ is the 4×4 homogeneous transformation matrix from the base frame $\{0\}$ to the end-effector frame $\{n\}$.
+
+## The Kinematic Chain
+
+The key insight is that we can break this problem into a chain of **local** transforms. Each link $i$ has a frame $\{i\}$ attached to it, and we need only describe how frame $\{i\}$ relates to frame $\{i-1\}$:
+
+$$
+T_0^n = T_0^1 \cdot T_1^2 \cdot T_2^3 \cdots T_{n-1}^n
+$$
+
+Each $T_{i-1}^i$ is a 4×4 homogeneous transform that depends on the geometry of link $i$ and joint variable $q_i$. The overall transform is just a product of matrices — one per link.
+
+<Callout type="info" title="Why This Works">
+
+Homogeneous transforms compose by multiplication (Module 3, Lesson 3). If $T_A^B$ takes points from $\{B\}$ to $\{A\}$, and $T_B^C$ takes points from $\{C\}$ to $\{B\}$, then $T_A^C = T_A^B \cdot T_B^C$ takes points from $\{C\}$ all the way to $\{A\}$. Forward kinematics is just this principle applied repeatedly along the chain.
+
+</Callout>
+
+## The Denavit-Hartenberg Convention
+
+How do we parameterize each $T_{i-1}^i$? We could use 6 parameters (3 for rotation, 3 for translation), but the **Denavit-Hartenberg (DH) convention** reduces this to just 4 parameters per link by placing coordinate frames according to specific rules.
+
+### DH Frame Assignment Rules
+
+1. The **$z_i$ axis** lies along the axis of joint $i+1$
+2. The **$x_i$ axis** points along the common normal from $z_{i-1}$ to $z_i$
+3. The **$y_i$ axis** completes the right-handed frame
+
+### The Four DH Parameters
+
+For each link $i$, the transform $T_{i-1}^i$ is determined by four quantities:
+
+| Parameter | Symbol | Description |
+|-----------|--------|-------------|
+| Link length | $a_i$ | Distance between $z_{i-1}$ and $z_i$ along $x_i$ |
+| Link twist | $\alpha_i$ | Angle from $z_{i-1}$ to $z_i$ about $x_i$ |
+| Link offset | $d_i$ | Distance between $x_{i-1}$ and $x_i$ along $z_{i-1}$ |
+| Joint angle | $\theta_i$ | Angle from $x_{i-1}$ to $x_i$ about $z_{i-1}$ |
+
+For a **revolute** joint, $\theta_i$ is the joint variable ($q_i = \theta_i$) and the other three are constants determined by the robot's geometry. For a **prismatic** joint, $d_i$ is the joint variable.
+
+### The DH Transformation Matrix
+
+The four parameters define the transform as a product of four elementary transforms:
+
+$$
+T_{i-1}^i = \text{Rot}_{z}(\theta_i) \cdot \text{Trans}_{z}(d_i) \cdot \text{Trans}_{x}(a_i) \cdot \text{Rot}_{x}(\alpha_i)
+$$
+
+Multiplying these out gives a single 4×4 matrix:
+
+$$
+T_{i-1}^i = \begin{bmatrix}
+\cos\theta_i & -\sin\theta_i\cos\alpha_i & \sin\theta_i\sin\alpha_i & a_i\cos\theta_i \\
+\sin\theta_i & \cos\theta_i\cos\alpha_i & -\cos\theta_i\sin\alpha_i & a_i\sin\theta_i \\
+0 & \sin\alpha_i & \cos\alpha_i & d_i \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+<Callout type="warning" title="Standard vs. Modified DH">
+
+There are two DH conventions in common use: **classical** (Denavit & Hartenberg 1955) and **modified** (Craig, also called proximal). They differ in the order of the four elementary transforms and in how frames are placed. The formula above is the classical convention. Both are correct — just be consistent. When reading DH tables from a datasheet, check which convention is used.
+
+</Callout>
+
+## Example: 2-Link Planar Arm
+
+The simplest nontrivial robot arm has two revolute joints in a plane. Let's derive its forward kinematics step by step.
+
+### DH Parameters
+
+| Link | $a_i$ | $\alpha_i$ | $d_i$ | $\theta_i$ |
+|------|--------|------------|--------|------------|
+| 1 | $L_1$ | 0 | 0 | $\theta_1$ |
+| 2 | $L_2$ | 0 | 0 | $\theta_2$ |
+
+Both joints are revolute, so $\theta_1$ and $\theta_2$ are the variables. Both link twists are zero because the joint axes are parallel (both perpendicular to the plane). Both offsets are zero because there's no displacement along the $z$ axes.
+
+### Link Transforms
+
+For link 1 ($\alpha_1 = 0, d_1 = 0$):
+
+$$
+T_0^1 = \begin{bmatrix}
+\cos\theta_1 & -\sin\theta_1 & 0 & L_1\cos\theta_1 \\
+\sin\theta_1 & \cos\theta_1 & 0 & L_1\sin\theta_1 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+For link 2 (same structure):
+
+$$
+T_1^2 = \begin{bmatrix}
+\cos\theta_2 & -\sin\theta_2 & 0 & L_2\cos\theta_2 \\
+\sin\theta_2 & \cos\theta_2 & 0 & L_2\sin\theta_2 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+### Total Transform
+
+$$
+T_0^2 = T_0^1 \cdot T_1^2 = \begin{bmatrix}
+\cos(\theta_1+\theta_2) & -\sin(\theta_1+\theta_2) & 0 & L_1\cos\theta_1 + L_2\cos(\theta_1+\theta_2) \\
+\sin(\theta_1+\theta_2) & \cos(\theta_1+\theta_2) & 0 & L_1\sin\theta_1 + L_2\sin(\theta_1+\theta_2) \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+The end-effector position is read from the last column:
+
+$$
+x = L_1\cos\theta_1 + L_2\cos(\theta_1 + \theta_2)
+$$
+$$
+y = L_1\sin\theta_1 + L_2\sin(\theta_1 + \theta_2)
+$$
+
+and the orientation is $\theta_1 + \theta_2$ (the upper-left 2×2 block is a rotation by this angle).
+
+<Example title="Numerical Verification" robotics>
+
+Let $L_1 = 2, L_2 = 1.5, \theta_1 = 45°, \theta_2 = 60°$.
+
+$$
+x = 2\cos(45°) + 1.5\cos(105°) \approx 2(0.707) + 1.5(-0.259) \approx 1.025
+$$
+$$
+y = 2\sin(45°) + 1.5\sin(105°) \approx 2(0.707) + 1.5(0.966) \approx 2.863
+$$
+
+The end-effector is at approximately $(1.03, 2.86)$ with orientation $105°$. You can verify this with the interactive visualization below.
+
+</Example>
+
+## Workspace
+
+The **workspace** is the set of all points the end-effector can reach. For a 2-link planar arm:
+
+- **Outer boundary**: a circle of radius $L_1 + L_2$ (arm fully extended)
+- **Inner boundary**: a circle of radius $|L_1 - L_2|$ (arm fully folded)
+- The reachable workspace is the **annular ring** between these circles
+
+When $L_1 = L_2$, the inner boundary shrinks to a point and the robot can reach the origin (by folding completely back on itself).
+
+<Callout type="info" title="Workspace vs. Configuration Space">
+
+The **workspace** lives in Cartesian coordinates (x, y for 2D; x, y, z for 3D). The **configuration space** (C-space) lives in joint coordinates ($\theta_1, \theta_2, \ldots$). Forward kinematics maps from C-space to workspace. Going the other direction — from a desired workspace position to the joint angles — is **inverse kinematics**, a harder problem that we don't cover here.
+
+</Callout>
+
+## Extension to 3D: The 6-DOF Arm
+
+Real industrial robots typically have 6 revolute joints, giving 6 degrees of freedom — enough to independently control both position (3 DOF) and orientation (3 DOF) of the end-effector in 3D space.
+
+<Example title="PUMA 560 Robot" robotics>
+
+The classic PUMA 560 has the following DH parameters:
+
+| Link | $a_i$ | $\alpha_i$ | $d_i$ | $\theta_i$ |
+|------|--------|------------|--------|------------|
+| 1 | 0 | $-90°$ | 0 | $\theta_1$ |
+| 2 | $a_2$ | 0 | 0 | $\theta_2$ |
+| 3 | $a_3$ | $90°$ | $d_3$ | $\theta_3$ |
+| 4 | 0 | $-90°$ | $d_4$ | $\theta_4$ |
+| 5 | 0 | $90°$ | 0 | $\theta_5$ |
+| 6 | 0 | 0 | $d_6$ | $\theta_6$ |
+
+The forward kinematics is $T_0^6 = T_0^1 \cdot T_1^2 \cdot T_2^3 \cdot T_3^4 \cdot T_4^5 \cdot T_5^6$ — six 4×4 matrix multiplications. The procedure is identical to the 2-link case, just with more links and nonzero twist angles $\alpha_i$.
+
+Notice that links 4, 5, 6 have $a_i = 0$ and their $\alpha_i$ values alternate between $\pm 90°$. These three joints form a **spherical wrist** — they intersect at a common point, which decouples position control (joints 1-3) from orientation control (joints 4-6).
+
+</Example>
+
+## The DH Transform in Code
+
+The DH transform is already available in this project's math library (`src/lib/math/transforms.ts`):
+
+```typescript
+function dhTransform(a: number, alpha: number, d: number, theta: number): Matrix
+```
+
+For the 2-link arm, the forward kinematics is:
+
+```typescript
+const T01 = dhTransform(L1, 0, 0, theta1);
+const T12 = dhTransform(L2, 0, 0, theta2);
+const T02 = multiply(T01, T12);  // End-effector transform
+```
+
+For an $n$-link arm, just keep multiplying:
+
+```typescript
+let T = identity(4);
+for (let i = 0; i < n; i++) {
+  const Ti = dhTransform(a[i], alpha[i], d[i], theta[i]);
+  T = multiply(T, Ti);
+}
+// T is now T_0^n
+```
+
+## Interactive Visualization
+
+Adjust the joint angles and link lengths of a 2-link planar arm. The visualization computes forward kinematics using DH parameters and displays the resulting end-effector position, the full homogeneous transform $T_0^2$, and the coordinate frames at each joint.
+
+<ForwardKinematicsViz client:load />
+
+## Practice Problems
+
+1. A 2-link planar arm has $L_1 = 3, L_2 = 2$. Compute the end-effector position when $\theta_1 = 30°, \theta_2 = -45°$.
+
+2. For the same arm, what is the maximum reach? What is the inner boundary radius?
+
+3. Write the DH table for a 3-link planar arm (three revolute joints in the same plane, link lengths $L_1, L_2, L_3$). What is $T_0^3$?
+
+4. A robot has DH parameters: link 1 with $a_1 = 0, \alpha_1 = 90°, d_1 = 0.5, \theta_1$. Compute $T_0^1$ when $\theta_1 = 0$.
+
+5. Why does a 6-DOF arm need exactly 6 joints to position and orient its end-effector arbitrarily in 3D space?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $x = 3\cos(30°) + 2\cos(30° - 45°) = 3(0.866) + 2(0.966) \approx 4.530$. $y = 3\sin(30°) + 2\sin(-15°) = 3(0.5) + 2(-0.259) \approx 0.982$. End-effector is at approximately $(4.53, 0.98)$.
+
+2. Maximum reach = $L_1 + L_2 = 5$ (arm fully extended). Inner boundary = $|L_1 - L_2| = 1$ (arm folded back).
+
+3. DH table adds a third row: link 3 with $a_3 = L_3, \alpha_3 = 0, d_3 = 0, \theta_3$. The total transform $T_0^3 = T_0^1 \cdot T_1^2 \cdot T_2^3$ gives end-effector position $x = L_1 c_1 + L_2 c_{12} + L_3 c_{123}$, $y = L_1 s_1 + L_2 s_{12} + L_3 s_{123}$ where $c_{12} = \cos(\theta_1 + \theta_2)$, etc.
+
+4. $T_0^1 = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & -1 & 0 \\ 0 & 1 & 0 & 0.5 \\ 0 & 0 & 0 & 1 \end{bmatrix}$. The $z_0$ axis maps to the $y_1$ axis (90° twist), and there's a 0.5 offset along $z_0$.
+
+5. A rigid body in 3D has 6 degrees of freedom: 3 translational (x, y, z) and 3 rotational (roll, pitch, yaw). Each revolute joint contributes 1 DOF. So 6 joints give 6 DOF — just enough to independently control all 6 components. With fewer joints, some workspace directions are constrained. With more joints, the robot is **redundant** and has extra flexibility.
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. **Forward kinematics** computes end-effector pose from joint variables: $T_0^n = T_0^1 \cdot T_1^2 \cdots T_{n-1}^n$
+2. The **DH convention** parameterizes each link with 4 quantities: $a, \alpha, d, \theta$
+3. Each link transform is a single 4×4 matrix; the chain is a matrix product
+4. The **workspace** is the reachable region in Cartesian space; the **configuration space** is the joint-angle space
+5. A 6-DOF arm can independently control position and orientation in 3D
+
+</Callout>
+
+## Next Steps
+
+Now that you can compute *where* the end-effector is, the next lesson addresses *how fast* it's moving — the **Jacobian** and velocity kinematics.

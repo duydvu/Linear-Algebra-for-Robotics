@@ -1,0 +1,299 @@
+---
+layout: '../../../components/layout/Layout.astro'
+title: 'Velocity Kinematics'
+description: 'The Jacobian matrix, velocity mapping, singularities, and manipulability analysis for robot arms'
+module: 5
+lesson: 2
+---
+
+import JacobianViz from '../../../components/interactive/robotics/JacobianViz.tsx';
+import Callout from '../../../components/content/Callout.astro';
+import Example from '../../../components/content/Example.astro';
+
+# Velocity Kinematics
+
+Forward kinematics tells us where the end-effector is. But for real-time control, we also need to know **how fast** it's moving and **in which direction**. This is the domain of **velocity kinematics**, and its central object is the **Jacobian matrix**.
+
+## From Positions to Velocities
+
+Recall from the previous lesson that forward kinematics gives us a vector function:
+
+$$
+\mathbf{x} = f(\mathbf{q})
+$$
+
+where $\mathbf{q} = [\theta_1, \theta_2, \ldots, \theta_n]^T$ is the joint angle vector and $\mathbf{x}$ is the end-effector pose. Differentiating with respect to time:
+
+$$
+\dot{\mathbf{x}} = \frac{\partial f}{\partial \mathbf{q}} \dot{\mathbf{q}} = J(\mathbf{q}) \dot{\mathbf{q}}
+$$
+
+The matrix $J(\mathbf{q})$ is the **Jacobian** — it linearly maps joint velocities $\dot{\mathbf{q}}$ to end-effector velocities $\dot{\mathbf{x}}$.
+
+<Callout type="info" title="The Jacobian Is a Matrix of Partial Derivatives">
+
+Each entry of the Jacobian is a partial derivative:
+
+$$
+J_{ij} = \frac{\partial x_i}{\partial q_j}
+$$
+
+Row $i$ tells how end-effector component $x_i$ responds to each joint. Column $j$ tells what velocity the end-effector gets when only joint $j$ moves.
+
+</Callout>
+
+## The 2-Link Planar Arm Jacobian
+
+For the 2R arm from the previous lesson:
+
+$$
+x = L_1\cos\theta_1 + L_2\cos(\theta_1 + \theta_2)
+$$
+$$
+y = L_1\sin\theta_1 + L_2\sin(\theta_1 + \theta_2)
+$$
+
+Taking partial derivatives:
+
+$$
+J = \begin{bmatrix}
+\frac{\partial x}{\partial \theta_1} & \frac{\partial x}{\partial \theta_2} \\[6pt]
+\frac{\partial y}{\partial \theta_1} & \frac{\partial y}{\partial \theta_2}
+\end{bmatrix}
+= \begin{bmatrix}
+-L_1 s_1 - L_2 s_{12} & -L_2 s_{12} \\
+L_1 c_1 + L_2 c_{12} & L_2 c_{12}
+\end{bmatrix}
+$$
+
+where $s_1 = \sin\theta_1$, $c_1 = \cos\theta_1$, $s_{12} = \sin(\theta_1 + \theta_2)$, $c_{12} = \cos(\theta_1 + \theta_2)$.
+
+### Reading the Jacobian
+
+- **Column 1** gives the end-effector velocity when only joint 1 rotates at unit speed ($\dot\theta_1 = 1, \dot\theta_2 = 0$). This is the velocity from the entire arm swinging around the base.
+- **Column 2** gives the velocity when only joint 2 rotates ($\dot\theta_1 = 0, \dot\theta_2 = 1$). This is just the second link swinging around joint 2.
+
+The end-effector velocity is a linear combination:
+
+$$
+\begin{bmatrix} \dot{x} \\ \dot{y} \end{bmatrix} = \dot\theta_1 \cdot \mathbf{J}_1 + \dot\theta_2 \cdot \mathbf{J}_2
+$$
+
+where $\mathbf{J}_1$ and $\mathbf{J}_2$ are the columns of $J$.
+
+<Example title="Velocity Computation" robotics>
+
+At $\theta_1 = 45°, \theta_2 = 90°$ with $L_1 = 2, L_2 = 1.5$:
+
+$$
+s_1 = 0.707, \quad c_1 = 0.707, \quad s_{12} = \sin(135°) = 0.707, \quad c_{12} = \cos(135°) = -0.707
+$$
+
+$$
+J = \begin{bmatrix}
+-2(0.707) - 1.5(0.707) & -1.5(0.707) \\
+2(0.707) + 1.5(-0.707) & 1.5(-0.707)
+\end{bmatrix}
+= \begin{bmatrix}
+-2.475 & -1.061 \\
+0.354 & -1.061
+\end{bmatrix}
+$$
+
+If joint 1 rotates at 1 rad/s and joint 2 is stationary:
+
+$$
+\dot{\mathbf{x}} = J \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} -2.475 \\ 0.354 \end{bmatrix} \text{ m/s}
+$$
+
+The end-effector moves mostly in the $-x$ direction — it's swinging leftward.
+
+</Example>
+
+## Singularities
+
+A configuration is **singular** when the Jacobian loses rank — that is, when $\det(J) = 0$. At a singularity, there exist directions in which the end-effector **cannot move** regardless of joint velocities.
+
+For the 2R arm:
+
+$$
+\det(J) = L_1 L_2 \sin\theta_2
+$$
+
+This is zero when $\theta_2 = 0$ or $\theta_2 = \pi$:
+
+- **$\theta_2 = 0$ (fully extended)**: The arm is a straight line. It can swing sideways but cannot extend or retract radially.
+- **$\theta_2 = \pi$ (fully folded)**: The arm folds back on itself. Same problem — no radial motion.
+
+<Callout type="warning" title="Singularities in Practice">
+
+Near a singularity:
+- Some end-effector velocities require **infinite** joint velocities (the robot can't keep up)
+- The inverse Jacobian $J^{-1}$ blows up — computed joint commands become unreasonably large
+- The robot may exhibit jerky, unstable motion
+- Force control becomes problematic: the robot can exert very large forces in certain directions with tiny joint torques
+
+Industrial robots have singularity-avoidance algorithms that detect when the robot approaches a singular configuration and modify the trajectory accordingly.
+
+</Callout>
+
+### Singularities of 6-DOF Arms
+
+For a 6-DOF arm, singularities are more complex. Common cases include:
+
+- **Shoulder singularity**: The wrist center lies on the $z_0$ axis (directly above or below the base)
+- **Elbow singularity**: The arm is fully extended or folded (like the 2R case)
+- **Wrist singularity**: Two of the wrist axes align (similar to gimbal lock)
+
+## The Manipulability Ellipsoid
+
+The **manipulability ellipsoid** visualizes how "capable" the robot is at a given configuration. It answers: if the joints can produce unit-speed velocities, what is the set of achievable end-effector velocities?
+
+Mathematically, the set $\{\dot{\mathbf{x}} : \|\dot{\mathbf{q}}\| \leq 1\}$ forms an ellipsoid in task space. This ellipsoid is characterized by $J J^T$:
+
+$$
+\dot{\mathbf{x}}^T (J J^T)^{-1} \dot{\mathbf{x}} \leq 1
+$$
+
+The eigenvectors of $J J^T$ give the **principal directions** of the ellipsoid, and the square roots of the eigenvalues ($\sigma_1, \sigma_2, \ldots$) are the **singular values** — the semi-axis lengths.
+
+<Callout type="info" title="Connection to Eigenvalues (Module 4)">
+
+The manipulability ellipsoid is a direct application of eigenanalysis from Module 4. The eigenvalues of $J J^T$ determine the ellipsoid shape:
+- **Large eigenvalue** → the robot can move fast in that direction
+- **Small eigenvalue** → the robot struggles in that direction
+- **Zero eigenvalue** → singularity — motion is impossible in that direction
+
+The condition number $\kappa = \sigma_1 / \sigma_2$ measures isotropy. When $\kappa = 1$, the ellipsoid is a circle (uniform capability). As $\kappa \to \infty$, the robot approaches a singularity.
+
+</Callout>
+
+### Yoshikawa's Manipulability Measure
+
+A single scalar summarizing the robot's overall dexterity:
+
+$$
+w = \sqrt{\det(J J^T)} = \sigma_1 \cdot \sigma_2 \cdots \sigma_m
+$$
+
+- $w = 0$ at singularities
+- $w$ is maximized at the most "dexterous" configurations
+- For the 2R arm: $w = |L_1 L_2 \sin\theta_2|$, which is maximized at $\theta_2 = \pm 90°$
+
+<Example title="Optimal Configuration" robotics>
+
+For a 2R arm with $L_1 = 2, L_2 = 1.5$:
+- At $\theta_2 = 90°$: $w = 2 \times 1.5 \times \sin(90°) = 3.0$ (maximum)
+- At $\theta_2 = 45°$: $w = 2 \times 1.5 \times \sin(45°) \approx 2.12$
+- At $\theta_2 = 10°$: $w = 2 \times 1.5 \times \sin(10°) \approx 0.52$ (poor)
+- At $\theta_2 = 0°$: $w = 0$ (singular)
+
+The best configuration is the right-angle elbow ($\theta_2 = 90°$), where the manipulability ellipsoid is closest to a circle. You can verify this with the interactive visualization below.
+
+</Example>
+
+## The 6-DOF Jacobian
+
+For a general 6-DOF arm, the Jacobian is a 6×6 matrix mapping 6 joint velocities to the 6-dimensional end-effector velocity (3 linear + 3 angular):
+
+$$
+\begin{bmatrix} \mathbf{v} \\ \boldsymbol{\omega} \end{bmatrix} = J(\mathbf{q}) \dot{\mathbf{q}}
+$$
+
+where $\mathbf{v} = [\dot{x}, \dot{y}, \dot{z}]^T$ is linear velocity and $\boldsymbol{\omega} = [\omega_x, \omega_y, \omega_z]^T$ is angular velocity. Each column of $J$ has two parts:
+
+$$
+\mathbf{J}_i = \begin{bmatrix} \mathbf{J}_{v,i} \\ \mathbf{J}_{\omega,i} \end{bmatrix}
+$$
+
+For revolute joint $i$, these are computed from the forward kinematics:
+
+$$
+\mathbf{J}_{v,i} = \hat{z}_{i-1} \times (\mathbf{p}_n - \mathbf{p}_{i-1}), \quad \mathbf{J}_{\omega,i} = \hat{z}_{i-1}
+$$
+
+where $\hat{z}_{i-1}$ is the rotation axis of joint $i$ and $\mathbf{p}_{i-1}$ is the origin of frame $\{i-1\}$. The linear velocity contribution is the cross product of the rotation axis with the vector from the joint to the end-effector — this is the formula for the velocity of a point on a rotating body.
+
+## Resolved-Rate Motion Control
+
+The Jacobian enables a powerful control strategy: instead of planning in joint space, plan a desired end-effector velocity $\dot{\mathbf{x}}_d$ and compute the required joint velocities:
+
+$$
+\dot{\mathbf{q}} = J^{-1}(\mathbf{q}) \dot{\mathbf{x}}_d
+$$
+
+This is **resolved-rate control**. In practice, we use the **pseudoinverse** $J^+$ for robustness:
+
+$$
+\dot{\mathbf{q}} = J^+(\mathbf{q}) \dot{\mathbf{x}}_d
+$$
+
+Near singularities, the **damped least-squares** (DLS) inverse is preferred:
+
+$$
+\dot{\mathbf{q}} = J^T (J J^T + \lambda^2 I)^{-1} \dot{\mathbf{x}}_d
+$$
+
+where $\lambda$ is a damping factor that trades off tracking accuracy for numerical stability. This connects directly to the matrix inverse and condition number concepts from Module 2.
+
+<Callout type="info" title="Static Force Analysis">
+
+The Jacobian also relates joint torques $\boldsymbol{\tau}$ to end-effector forces $\mathbf{f}$ through the principle of virtual work:
+
+$$
+\boldsymbol{\tau} = J^T \mathbf{f}
+$$
+
+The transpose of the Jacobian maps task-space forces to joint-space torques. This duality between velocity and force is a fundamental result of Lagrangian mechanics.
+
+</Callout>
+
+## Interactive Visualization
+
+Explore the Jacobian for a 2-link planar arm. Adjust joint angles and velocities to see how the Jacobian maps joint motion to end-effector velocity. The manipulability ellipsoid shows the robot's directional capability at each configuration.
+
+<JacobianViz client:load />
+
+## Practice Problems
+
+1. For a 2R arm with $L_1 = L_2 = 1$, compute the Jacobian at $\theta_1 = 0, \theta_2 = 90°$. What is $\det(J)$?
+
+2. At the configuration from Problem 1, if $\dot\theta_1 = 1$ rad/s and $\dot\theta_2 = -1$ rad/s, what is the end-effector velocity?
+
+3. Find all singular configurations for a 2R arm. Describe geometrically what happens at each.
+
+4. A 2R arm has $L_1 = 3, L_2 = 2$. At what value of $\theta_2$ is the manipulability measure $w$ maximized? What is $w_{\max}$?
+
+5. For the 6-DOF Jacobian column formula $\mathbf{J}_{v,i} = \hat{z}_{i-1} \times (\mathbf{p}_n - \mathbf{p}_{i-1})$, explain why this gives the correct linear velocity contribution from joint $i$.
+
+<details>
+<summary>**Answers**</summary>
+
+1. At $\theta_1 = 0, \theta_2 = 90°$: $s_1 = 0, c_1 = 1, s_{12} = 1, c_{12} = 0$.
+$J = \begin{bmatrix} -0 - 1 & -1 \\ 1 + 0 & 0 \end{bmatrix} = \begin{bmatrix} -1 & -1 \\ 1 & 0 \end{bmatrix}$.
+$\det(J) = (-1)(0) - (-1)(1) = 1 = L_1 L_2 \sin(90°)$.
+
+2. $\dot{\mathbf{x}} = J \begin{bmatrix} 1 \\ -1 \end{bmatrix} = \begin{bmatrix} -1+1 \\ 1+0 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$ m/s. The end-effector moves straight up.
+
+3. Singular when $\sin\theta_2 = 0$, i.e., $\theta_2 = 0$ (arm fully extended — cannot move radially inward/outward) or $\theta_2 = \pi$ (arm fully folded — same issue, also the end-effector is at a distance of $|L_1 - L_2|$ from the base).
+
+4. $w = L_1 L_2 |\sin\theta_2| = 6|\sin\theta_2|$. Maximized at $\theta_2 = \pm 90°$ with $w_{\max} = 6$.
+
+5. Joint $i$ rotates frame $\{i-1\}$ about $\hat{z}_{i-1}$. The end-effector is at distance $\|\mathbf{p}_n - \mathbf{p}_{i-1}\|$ from the joint. The velocity of a point at distance $\mathbf{r}$ from a rotation axis $\hat{\omega}$ rotating at rate $\dot\theta$ is $\mathbf{v} = \hat{\omega} \times \mathbf{r} \cdot \dot\theta$. With $\hat{\omega} = \hat{z}_{i-1}$ and $\mathbf{r} = \mathbf{p}_n - \mathbf{p}_{i-1}$, this is exactly $\mathbf{J}_{v,i} \cdot \dot\theta_i$.
+
+</details>
+
+<Callout type="success" title="Key Takeaways">
+
+1. The **Jacobian** $J(\mathbf{q})$ maps joint velocities to end-effector velocities: $\dot{\mathbf{x}} = J \dot{\mathbf{q}}$
+2. Each Jacobian entry is a partial derivative: $J_{ij} = \partial x_i / \partial q_j$
+3. **Singularities** occur when $\det(J) = 0$ — some end-effector motions become impossible
+4. The **manipulability ellipsoid** (from the eigenvalues of $J J^T$) visualizes directional capability
+5. The **Jacobian transpose** maps end-effector forces to joint torques: $\boldsymbol{\tau} = J^T \mathbf{f}$
+6. **Resolved-rate control** uses $J^{-1}$ (or $J^+$) to compute joint velocities for a desired task-space motion
+
+</Callout>
+
+## Next Steps
+
+The final lesson brings these tools to bear on **path planning** — using potential fields, gradients, and trajectory interpolation to move robots through cluttered environments.
