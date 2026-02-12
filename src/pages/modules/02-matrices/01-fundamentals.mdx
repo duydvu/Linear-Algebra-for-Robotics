@@ -224,6 +224,29 @@ Try the basic matrix operations below. Adjust the matrix elements and see how op
 
 </Callout>
 
+## Practice Problems
+
+1. Compute $A + B$ and $3A$ for $A = \begin{bmatrix}1 & -2\\3 & 0\end{bmatrix}$, $B = \begin{bmatrix}4 & 1\\-1 & 5\end{bmatrix}$.
+
+2. Find $A^T$ for the 2×3 matrix $A = \begin{bmatrix}1 & 0 & -3\\2 & 5 & 1\end{bmatrix}$. What are the dimensions of $A^T$?
+
+3. Are these vectors linearly independent? $\vec{v}_1 = (1, 2, 3)$, $\vec{v}_2 = (2, 4, 6)$, $\vec{v}_3 = (0, 1, 1)$
+
+4. A 2-joint robot's Jacobian has columns $(1, 0)$ and $(0.5, 0)$. What is the rank? Is the robot at a singularity?
+
+<details>
+<summary>**Answers**</summary>
+
+1. $A + B = \begin{bmatrix}5 & -1\\2 & 5\end{bmatrix}$, $3A = \begin{bmatrix}3 & -6\\9 & 0\end{bmatrix}$
+
+2. $A^T = \begin{bmatrix}1 & 2\\0 & 5\\-3 & 1\end{bmatrix}$. Dimensions: **3×2** (rows and columns swap).
+
+3. **No** — $\vec{v}_2 = 2\vec{v}_1$, so $\vec{v}_1$ and $\vec{v}_2$ are dependent. (Even though $\vec{v}_3$ is independent of $\vec{v}_1$, the set as a whole is dependent.)
+
+4. Both columns are multiples of $(1, 0)$ — they point in the same direction. Rank = **1** (not full rank). Yes, the robot is at a **singularity** — it can only produce end-effector motion along the x-axis.
+
+</details>
+
 ## Next Steps
 
 Now that you understand basic matrix operations, we'll explore **matrix multiplication** — the key operation for composing transformations and understanding robot kinematics.

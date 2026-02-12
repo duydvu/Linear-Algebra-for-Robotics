@@ -38,7 +38,7 @@ R_y(\theta) = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-The y-axis stays fixed; the x-z plane rotates.
+The y-axis stays fixed; the x-z plane rotates. Note the sign pattern: $+\sin\theta$ appears in position (0,2) and $-\sin\theta$ in (2,0) — opposite to $R_x$ and $R_z$. This is required by the right-hand rule: the cyclic order $x \to y \to z \to x$ means the y-axis rotation "wraps around" differently. Getting this sign wrong is one of the most common bugs in manual 3D rotation code.
 
 ### Rotation around Z (Yaw)
 
@@ -106,7 +106,7 @@ Euler angles have a critical limitation called **gimbal lock**. When the pitch a
 
 ### What happens mathematically
 
-When pitch $= 90°$, the rotation matrix $R_y(90°)$ maps the x-axis onto the z-axis. Now both $R_z$ (yaw) and $R_x$ (roll) rotate around the *same* axis — they become redundant. Only their sum or difference matters:
+When pitch $= 90°$, the rotation matrix $R_y(90°)$ maps the x-axis into the z-axis direction (specifically, to $-\hat{z}$). Now both $R_z$ (yaw) and $R_x$ (roll) rotate around the *same* axis — they become redundant. Only their sum or difference matters:
 
 $$
 R_z(\psi) \cdot R_y(90°) \cdot R_x(\theta) = \begin{bmatrix}
@@ -127,7 +127,7 @@ In modern robotics, gimbal lock can cause:
 - **Numerical instability** in control algorithms
 - **Singularities** in path planning
 
-This is why many robotics systems use **quaternions** (covered in Module 4) instead of Euler angles for orientation representation.
+This is why many robotics systems use **quaternions** (covered in Module 4) instead of Euler angles for orientation representation. Quaternions are based on the **axis-angle** idea: by Euler's rotation theorem, any rotation can be described by a single axis $\hat{n}$ and angle $\theta$ — a more natural representation than three sequential rotations.
 
 </Callout>
 

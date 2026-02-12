@@ -64,7 +64,7 @@ $$
 [\hat{k}]_\times = \begin{bmatrix} 0 & -k_z & k_y \\ k_z & 0 & -k_x \\ -k_y & k_x & 0 \end{bmatrix}
 $$
 
-This is **Rodrigues' rotation formula** — one of the most important formulas in 3D geometry.
+This is **Rodrigues' rotation formula** — one of the most important formulas in 3D geometry. A useful identity for the squared term: $[\hat{k}]_\times^2 = \hat{k}\hat{k}^T - I$, which follows from the vector triple product $\hat{k} \times (\hat{k} \times \vec{v}) = \hat{k}(\hat{k}\cdot\vec{v}) - \vec{v}$.
 
 <Example title="Rotation About Z-Axis" robotics>
 
@@ -224,6 +224,16 @@ Given $R$, the quaternion can be extracted via the **Shepperd method** (numerica
 2. If $w > \epsilon$: $x = \frac{R_{32}-R_{23}}{4w}$, $y = \frac{R_{13}-R_{31}}{4w}$, $z = \frac{R_{21}-R_{12}}{4w}$
 3. If $w \approx 0$: use alternative formulas based on the largest diagonal element
 
+<Callout type="warning" title="Quaternion Ordering Convention">
+
+This lesson uses **scalar-first** ordering: $q = (w, x, y, z)$. However, many libraries use **scalar-last**: $q = (x, y, z, w)$. Watch out:
+- **Scalar-first** $(w, x, y, z)$: Eigen (default), MATLAB, Aerospace convention
+- **Scalar-last** $(x, y, z, w)$: ROS tf2, Unity, PyBullet
+
+Mixing conventions silently produces wrong rotations. Always check your library's documentation — this is the quaternion equivalent of the Euler angle convention problem.
+
+</Callout>
+
 <Callout type="warning" title="Quaternion Normalization">
 
 Like rotation matrices, quaternions accumulate numerical drift when composed repeatedly. Periodically re-normalize: $q \leftarrow q / |q|$. This is a simple division by the norm — much cheaper than re-orthogonalizing a $3 \times 3$ matrix.
@@ -293,7 +303,7 @@ Compare this to interpolating Euler angles linearly, which can produce wobbly, n
 |---|:---:|:---:|:---:|:---:|---|
 | Euler Angles | 3 | **Gimbal lock** | Slow (matrix rebuild) | Poor | Human-readable configs |
 | Rotation Matrix | 9 (6 constraints) | None | Matrix multiply | Difficult | Direct vector transformation |
-| Axis-Angle | 4 (1 constraint) | At $\theta = 0$ | Via Rodrigues | Non-trivial | Visualization, display |
+| Axis-Angle | 4 (1 constraint) | Axis undefined at $\theta = 0$ | Via Rodrigues | Non-trivial | Visualization, display |
 | Rotation Vector | 3 | At $\theta = \pi$ | Via exponential | Additive (small angles) | Optimization, Lie theory |
 | Quaternion | 4 (1 constraint) | None | Quaternion multiply | **SLERP** | **Industry standard** |
 

@@ -407,8 +407,8 @@ export default function DeterminantViz() {
                         <div className="text-xs">
                           • θ₁ = 45°, θ₂ = 60° (normal)
                           <br />
-                          • θ₁ = 0°, θ₂ = 180° (singular, fully extended)
-                          <br />• θ₁ = 90°, θ₂ = -180° (singular, folded)
+                          • θ₁ = 0°, θ₂ = 0° (singular, fully extended)
+                          <br />• θ₁ = 90°, θ₂ = 180° (singular, fully folded)
                         </div>
                       </div>
                     </div>

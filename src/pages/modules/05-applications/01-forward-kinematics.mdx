@@ -40,6 +40,12 @@ Homogeneous transforms compose by multiplication (Module 3, Lesson 3). If $T_A^B
 
 </Callout>
 
+<Callout type="warning" title="Notation Convention">
+
+This module writes $T_0^n$ where the **subscript is the reference frame** and the **superscript is the described frame**: $T_0^n$ means "the pose of frame $\{n\}$ described in frame $\{0\}$." Module 4's coordinate frames lesson placed them the other way: $T_n^0$ for the same transform (subscript = described, superscript = reference). Both conventions are common in robotics textbooks. The chain cancellation pattern here is $T_0^{\cancel{1}} \cdot T_{\cancel{1}}^2 = T_0^2$ — adjacent superscript and subscript cancel. Always check which convention a textbook or library uses before combining transforms from different sources.
+
+</Callout>
+
 ## The Denavit-Hartenberg Convention
 
 How do we parameterize each $T_{i-1}^i$? We could use 6 parameters (3 for rotation, 3 for translation), but the **Denavit-Hartenberg (DH) convention** reduces this to just 4 parameters per link by placing coordinate frames according to specific rules.

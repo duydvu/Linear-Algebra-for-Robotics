@@ -123,6 +123,8 @@ Local minima are configurations where the robot gets "stuck" — the gradient is
 - Concave obstacle arrangements that create "traps"
 - Symmetric configurations where forces cancel
 
+A related problem is **oscillation in narrow passages**: when a robot passes between two nearby obstacles, the opposing repulsive forces can cause the path to oscillate back and forth, leading to slow convergence or jittery motion.
+
 Solutions include: **randomized perturbations**, **navigation functions** (special potential fields guaranteed to have no local minima), or switching to **graph-based planners** (like A* or RRT) which are complete but slower.
 
 </Callout>
@@ -188,9 +190,11 @@ A complete motion planning system for a robot arm typically follows this pipelin
 
 Every step involves linear algebra: transforms for step 1, matrix equations for step 2, gradients for step 3, polynomial vectors for step 4, and the Jacobian for step 5.
 
-{/* TODO: Add a section on graph-based planners (A*, RRT) with a brief explanation of how
-     they guarantee completeness, unlike potential fields. This requires discrete math concepts
-     (graph theory) that are outside the pure linear algebra scope of this course. */}
+<Callout type="info" title="Beyond Potential Fields: Graph-Based Planners">
+
+Potential fields are fast and reactive, but they lack **completeness** — they can get stuck in local minima. **Graph-based planners** offer stronger guarantees. **A*** (on a discretized grid) is **complete** — it will always find a path if one exists. **RRT** (Rapidly-exploring Random Trees) and **PRM** (Probabilistic Roadmaps) sample configurations in continuous C-space and are **probabilistically complete**: the probability of finding a path approaches 1 as the number of samples increases. The tradeoff is computational cost — these planners are slower than potential fields but more reliable. In practice, many systems combine both: a graph-based planner for the global path and a potential field for local obstacle avoidance.
+
+</Callout>
 
 ## Interactive Visualization
 

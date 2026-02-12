@@ -99,6 +99,8 @@ This matrix scales *x* by 2 and *y* by 3. The unit square (area 1) becomes a rec
 - **det(*A*) < 0**: Transformation reverses orientation (reflection)
 - **det(*A*) = 0**: Transformation collapses space (singular)
 
+A useful property: **det(*AB*) = det(*A*) · det(*B*)**. Composing two transformations multiplies their area-scaling factors. This also explains why det(*A*<sup>-1</sup>) = 1/det(*A*) — the inverse must undo the scaling.
+
 ## Singular Matrices
 
 A matrix is **singular** if det(*A*) = 0. This means:

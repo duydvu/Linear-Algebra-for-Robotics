@@ -15,7 +15,7 @@ import Example from '../../../components/content/Example.astro';
 The **cross product** (or vector product) is a 3D operation that takes two vectors and produces a third vector **perpendicular** to both. It's essential for computing torques, angular momentum, and surface normals in robotics.
 
 <Callout type="warning" title="3D Only!">
-The cross product is only defined for 3D vectors. There's no 2D equivalent (though there's a scalar version in 2D).
+The cross product is only defined for 3D vectors. However, in 2D we can compute a useful **scalar version**: $a_x b_y - a_y b_x$, which is the z-component of the cross product when treating 2D vectors as 3D with $z = 0$. This scalar gives the signed area of the parallelogram and the direction of rotation (positive = counterclockwise). It's commonly used in 2D robotics for torque and left/right-of-line tests.
 </Callout>
 
 ## What is the Cross Product?
@@ -83,7 +83,7 @@ Torque about the wrist:
 
 $$\vec{\tau} = \vec{r} \times \vec{F} = \begin{bmatrix} 0.3 \\ 0 \\ 0 \end{bmatrix} \times \begin{bmatrix} 0 \\ 10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 3 \end{bmatrix} \text{ N·m}$$
 
-The torque is 3 N·m around the z-axis, causing rotation in the xy-plane.
+The torque is 3 N·m around the z-axis. By the right-hand rule, positive z-torque means **counterclockwise** rotation when viewed from above — this is the standard convention in robotics.
 </Example>
 
 ## Properties of Cross Product
@@ -92,6 +92,7 @@ The torque is 3 N·m around the z-axis, causing rotation in the xy-plane.
 2. **Distributive**: $\vec{a} \times (\vec{b} + \vec{c}) = \vec{a} \times \vec{b} + \vec{a} \times \vec{c}$
 3. **Scalar multiplication**: $(k\vec{a}) \times \vec{b} = k(\vec{a} \times \vec{b})$
 4. **Self cross product**: $\vec{a} \times \vec{a} = \vec{0}$
+5. **NOT associative**: $\vec{a} \times (\vec{b} \times \vec{c}) \neq (\vec{a} \times \vec{b}) \times \vec{c}$ in general — unlike vector addition, you cannot regroup cross products. This matters in robotics dynamics.
 
 ### Perpendicularity Check
 
