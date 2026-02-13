@@ -1,0 +1,468 @@
+---
+import Layout from '../components/layout/Layout.astro';
+import Callout from '../components/content/Callout.astro';
+---
+
+<Layout title="Resources">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4 tracking-tight">Learning Resources</h1>
+    <p class="text-base-content/70 text-lg mb-10 leading-relaxed">
+      Curated collection of textbooks, courses, tools, and communities to deepen your understanding
+      of linear algebra and robotics.
+    </p>
+
+    <!-- Textbooks -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <span class="text-3xl">📚</span>
+        Textbooks & Books
+      </h2>
+
+      <div class="space-y-4">
+        <!-- Linear Algebra Books -->
+        <div class="collapse collapse-arrow bg-base-200/50 border border-base-content/[0.06]">
+          <input type="radio" name="textbooks-accordion" checked />
+          <div class="collapse-title text-lg font-medium">
+            Linear Algebra Textbooks
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-4 pt-2">
+              <div class="card bg-base-100 border border-base-content/[0.06]">
+                <div class="card-body p-4">
+                  <h3 class="font-semibold">Introduction to Linear Algebra (6th Edition)</h3>
+                  <p class="text-sm text-base-content/70 mb-2">by Gilbert Strang</p>
+                  <p class="text-sm text-base-content/60 mb-3">
+                    The gold standard textbook from MIT's legendary professor. Combines serious purpose with
+                    accessible explanations. New chapters on optimization and deep learning.
+                  </p>
+                  <a
+                    href="https://math.mit.edu/~gs/linearalgebra/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary text-sm hover:underline inline-flex items-center gap-1"
+                  >
+                    Visit official site
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              <div class="card bg-base-100 border border-base-content/[0.06]">
+                <div class="card-body p-4">
+                  <div class="flex items-start justify-between">
+                    <h3 class="font-semibold">Linear Algebra Done Right (4th Edition)</h3>
+                    <span class="badge badge-success badge-sm">Free PDF</span>
+                  </div>
+                  <p class="text-sm text-base-content/70 mb-2">by Sheldon Axler</p>
+                  <p class="text-sm text-base-content/60 mb-3">
+                    Open Access textbook with a unique determinant-free approach. Focuses on understanding
+                    the structure of linear operators. Over 250 exercises added in latest edition.
+                  </p>
+                  <a
+                    href="https://linear.axler.net/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary text-sm hover:underline inline-flex items-center gap-1"
+                  >
+                    Download free PDF
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              <div class="card bg-base-100 border border-base-content/[0.06]">
+                <div class="card-body p-4">
+                  <div class="flex items-start justify-between">
+                    <h3 class="font-semibold">Linear Algebra and Optimization</h3>
+                    <span class="badge badge-primary badge-sm badge-outline">Robotics Focus</span>
+                  </div>
+                  <p class="text-sm text-base-content/70 mb-2">by Gallier & Quaintance</p>
+                  <p class="text-sm text-base-content/60 mb-3">
+                    Specifically designed for computer vision, robotics, and machine learning applications.
+                    Practical approach with real-world examples.
+                  </p>
+                  <a
+                    href="https://www.seas.upenn.edu/~cis5150/linalg-I.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary text-sm hover:underline inline-flex items-center gap-1"
+                  >
+                    Download PDF
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Robotics Books -->
+        <div class="collapse collapse-arrow bg-base-200/50 border border-base-content/[0.06]">
+          <input type="radio" name="textbooks-accordion" />
+          <div class="collapse-title text-lg font-medium">
+            Robotics Textbooks
+          </div>
+          <div class="collapse-content">
+            <div class="space-y-4 pt-2">
+              <div class="card bg-base-100 border border-base-content/[0.06]">
+                <div class="card-body p-4">
+                  <div class="flex items-start justify-between">
+                    <h3 class="font-semibold">Modern Robotics</h3>
+                    <span class="badge badge-success badge-sm">Free PDF</span>
+                  </div>
+                  <p class="text-sm text-base-content/70 mb-2">by Lynch & Park</p>
+                  <p class="text-sm text-base-content/60 mb-3">
+                    Comprehensive robotics textbook covering mechanics, planning, and control. Includes
+                    free Coursera courses and extensive online resources. The go-to modern robotics reference.
+                  </p>
+                  <a
+                    href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary text-sm hover:underline inline-flex items-center gap-1"
+                  >
+                    Visit textbook site
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              <div class="card bg-base-100 border border-base-content/[0.06]">
+                <div class="card-body p-4">
+                  <h3 class="font-semibold">Introduction to Autonomous Mobile Robots (2nd Edition)</h3>
+                  <p class="text-sm text-base-content/70 mb-2">by Siegwart, Nourbakhsh & Scaramuzza</p>
+                  <p class="text-sm text-base-content/60 mb-3">
+                    Comprehensive introduction to mobile robotics, from algorithms to mechanisms. Covers
+                    locomotion, sensing, localization, and motion planning with 130 pages of new material.
+                  </p>
+                  <a
+                    href="https://mitpress.mit.edu/9780262015356/introduction-to-autonomous-mobile-robots/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-primary text-sm hover:underline inline-flex items-center gap-1"
+                  >
+                    MIT Press page
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Online Courses -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <span class="text-3xl">🎓</span>
+        Free Online Courses
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all">
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <h3 class="card-title text-lg">MIT OpenCourseWare 18.06</h3>
+              <span class="badge badge-info badge-sm">10M+ views</span>
+            </div>
+            <p class="text-sm text-base-content/60 mb-3">
+              Gilbert Strang's legendary linear algebra lectures. Includes 35 lecture videos, problem sets,
+              and solutions. The most popular linear algebra course online.
+            </p>
+            <div class="card-actions">
+              <a
+                href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-primary btn-outline"
+              >
+                Start Course
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all">
+          <div class="card-body">
+            <h3 class="card-title text-lg">Khan Academy Linear Algebra</h3>
+            <p class="text-sm text-base-content/60 mb-3">
+              Free interactive course with video lectures and practice exercises. Covers all topics in
+              a first-year college linear algebra course at your own pace.
+            </p>
+            <div class="card-actions">
+              <a
+                href="https://www.khanacademy.org/math/linear-algebra"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-primary btn-outline"
+              >
+                Start Course
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all md:col-span-2">
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <h3 class="card-title text-lg">3Blue1Brown: Essence of Linear Algebra</h3>
+              <span class="badge badge-secondary badge-sm">Visual Learning</span>
+            </div>
+            <p class="text-sm text-base-content/60 mb-3">
+              15-chapter video series with stunning animations emphasizing geometric intuition. Covers
+              vectors, matrices, determinants, eigenvectors, and more. Perfect for visual learners.
+            </p>
+            <div class="card-actions">
+              <a
+                href="https://www.3blue1brown.com/topics/linear-algebra"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-sm btn-primary btn-outline"
+              >
+                Watch Series
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Software & Tools -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <span class="text-3xl">🛠️</span>
+        Software & Tools
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Python Libraries -->
+        <div>
+          <h3 class="font-semibold mb-3 text-base-content/80">Python Scientific Computing</h3>
+          <div class="space-y-2">
+            <a
+              href="https://numpy.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">NumPy</div>
+                <div class="text-xs text-base-content/50">Array computing & linear algebra</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+
+            <a
+              href="https://scipy.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">SciPy</div>
+                <div class="text-xs text-base-content/50">Optimization, integration, eigenvalues</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+
+            <a
+              href="https://matplotlib.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">Matplotlib / Plotly</div>
+                <div class="text-xs text-base-content/50">Data visualization</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+
+            <a
+              href="https://www.sympy.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">SymPy</div>
+                <div class="text-xs text-base-content/50">Symbolic mathematics</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Robotics Frameworks -->
+        <div>
+          <h3 class="font-semibold mb-3 text-base-content/80">Robotics Frameworks</h3>
+          <div class="space-y-2">
+            <a
+              href="https://docs.ros.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">ROS 2</div>
+                <div class="text-xs text-base-content/50">Robot Operating System</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+
+            <a
+              href="https://pybullet.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-lg border border-base-content/[0.06] hover:border-primary/30 hover:bg-base-200/50 transition-all group"
+            >
+              <div>
+                <div class="font-medium">PyBullet</div>
+                <div class="text-xs text-base-content/50">Physics simulation for Python</div>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/30 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+
+            <div class="p-3 rounded-lg border border-base-content/[0.06] bg-base-200/30">
+              <div class="font-medium text-sm">Other Options</div>
+              <div class="text-xs text-base-content/50 mt-1">
+                MuJoCo, Gazebo, CoppeliaSim, Webots
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Communities -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <span class="text-3xl">💬</span>
+        Communities & Forums
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <a
+          href="https://robotics.stackexchange.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all"
+        >
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <h3 class="card-title text-lg">Robotics Stack Exchange</h3>
+              <span class="badge badge-info badge-sm">25k+ users</span>
+            </div>
+            <p class="text-sm text-base-content/60">
+              Official Q&A site for robotics engineers, hobbyists, and students. Now includes migrated
+              ROS Answers content.
+            </p>
+          </div>
+        </a>
+
+        <a
+          href="https://www.reddit.com/r/robotics/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all"
+        >
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <h3 class="card-title text-lg">r/robotics</h3>
+              <span class="badge badge-info badge-sm">312k members</span>
+            </div>
+            <p class="text-sm text-base-content/60">
+              Very active Reddit community for robotics discussions, project sharing, and advice.
+              Annual Robotics Showcase events.
+            </p>
+          </div>
+        </a>
+
+        <a
+          href="https://www.reddit.com/r/learnmath/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all"
+        >
+          <div class="card-body">
+            <h3 class="card-title text-lg">r/learnmath</h3>
+            <p class="text-sm text-base-content/60">
+              Supportive community for learning mathematics at all levels, including linear algebra.
+            </p>
+          </div>
+        </a>
+
+        <a
+          href="https://discourse.openrobotics.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card bg-base-100 border border-base-content/[0.06] hover:border-primary/20 hover:shadow-md transition-all"
+        >
+          <div class="card-body">
+            <h3 class="card-title text-lg">Open Robotics Discourse</h3>
+            <p class="text-sm text-base-content/60">
+              Official forum for ROS and Gazebo discussions, announcements, and community support.
+            </p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Further Topics -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold mb-6 flex items-center gap-2">
+        <span class="text-3xl">🚀</span>
+        Further Topics to Explore
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">Inverse Kinematics</div>
+        </div>
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">Dynamics & Control</div>
+        </div>
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">SLAM</div>
+        </div>
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">Motion Planning</div>
+        </div>
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">Computer Vision</div>
+        </div>
+        <div class="p-4 rounded-lg bg-base-200/50 border border-base-content/[0.06] text-center">
+          <div class="font-medium text-sm">Optimal Control</div>
+        </div>
+      </div>
+    </section>
+
+    <Callout type="info" title="Have a suggestion?">
+      Found a great resource that should be included here? Open an issue or submit a pull request on
+      <a href="https://github.com/duydvu/Linear-Algebra-for-Robotics" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">GitHub</a>.
+    </Callout>
+  </div>
+</Layout>
